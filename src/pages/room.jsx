@@ -46,6 +46,36 @@ export default function Room() {
         setWordAssignments(assignedWords);
     }, [players]);
 
+    function handlePlayAgainClick() {
+        setShuffledPlayers([]);
+        setWordAssignments({});
+        setCurrentPlayer(0);
+        setIsFlipped(false);
+        setGamePhase(0);
+        setVoting(false);
+        setEliminatedPlayer(null);
+        setImposterEliminated(false);
+        setMainWord(null);
+        setImposterWord(null);
+
+        // Reinitialize the game setup
+        let shuffled = [...players].sort(() => Math.random() - 0.5);
+        setShuffledPlayers(shuffled);
+
+        const randomFamily = wordsData[Math.floor(Math.random() * wordsData.length)];
+        let wordChoices = [...randomFamily.words].sort(() => Math.random() - 0.5);
+        setMainWord(wordChoices[0]);
+        setImposterWord(wordChoices[1]);
+
+        const assignedWords = {};
+        shuffled.forEach((player) => (assignedWords[player] = wordChoices[0]));
+
+        const imposterIndex = Math.floor(Math.random() * shuffled.length);
+        assignedWords[shuffled[imposterIndex]] = wordChoices[1];
+
+        setWordAssignments(assignedWords);
+    }
+
     function handleNextClick() {
         if (currentPlayer < players.length - 1) {
             setIsFlipped(false);
@@ -150,7 +180,7 @@ export default function Room() {
                     )}
                     <h3>Main Word: {mainWord}</h3>
                     <h3>Imposter Word: {imposterWord}</h3>
-                    <button className="play-again-button" onClick={() => window.location.reload()}>
+                    <button className="play-again-button" onClick={handlePlayAgainClick}>
                         Play Again  
                     </button>
                 </div>
