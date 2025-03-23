@@ -5,8 +5,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/home.jsx";
 import Room from "./pages/room.jsx";
 
+
 createRoot(document.getElementById('root')).render(
-    <Router basename={import.meta.env.BASE_URL}>
+    <Router basename='/GuessWho'>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/room" element={<Room />} />
