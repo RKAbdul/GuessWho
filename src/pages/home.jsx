@@ -22,7 +22,7 @@ export default function Home() {
     }
     const navigate = useNavigate();
     function startGame() {
-        navigate('/room', { state: { players: playerNames, mode: selectedMode.current } });
+        selectedMode.current === 0 ? navigate('/room', { state: { players: playerNames, mode: selectedMode.current } }) : navigate('/qroom', { state: { players: playerNames, mode: selectedMode.current } });
     }
 
     return (
