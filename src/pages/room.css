@@ -218,3 +218,66 @@ body {
     box-shadow: 3px 3px 0px #5e0404;
   }
 
+.answer-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  background: rgba(50, 50, 50, 0.9);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+  width: 300px;
+}
+
+.answer-form input {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: 'Roboto', sans-serif;
+  background: #fefdff;
+  color: #000;
+  box-shadow: 3px 3px 0px #8a8888;
+}
+
+.answer-form button {
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  background: #747373;
+  color: #d8d7d7;
+  font-family: 'Baloo Bhaijaan 2', cursive;
+  box-shadow: 3px 3px 0px #555454;
+}
+
+.answer-form button:hover {
+  background: #555454;
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 5px 5px 0px #747373;
+}
+
+.answers-title {
+  font-size: 1.5rem;
+  font-family: 'Baloo Bhaijaan 2', cursive;
+  color: #ffffff;
+  margin-top: 20px;
+}
+
+.main-question {
+  font-size: 1.5rem;
+  font-family: 'Baloo Bhaijaan 2', cursive;
+  color: #ffffff;
+  margin-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
