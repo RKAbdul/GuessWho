@@ -1,283 +1,992 @@
-body {
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #1b1b1b;
+/* ==================== GLOBAL STYLES ==================== */
+
+button {
+    outline: none;
 }
 
+button:focus {
+    outline: none;
+}
+
+button:focus-visible {
+    outline: 2px solid rgba(255, 107, 107, 0.5);
+    outline-offset: 2px;
+}
+
+/* ==================== ROOM CONTAINER ==================== */
 
 .room-container {
+    min-height: 100vh;
+    background-color: #1b1b1b;
+    color: #ffffff;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* ==================== HEADER ==================== */
+
+.room-header {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.room-title {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 28px;
+    color: #fefdff;
+    margin: 0;
+    text-shadow: 2px 2px 0px #8a8888;
+}
+
+.home-icon-button {
+    background: rgba(80, 80, 80, 0.8);
+    border: 2px solid rgba(255, 107, 107, 0.3);
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
     justify-content: center;
 }
-  
-.logo {
+
+.home-icon-button:hover {
+    background: rgba(100, 100, 100, 0.9);
+    border-color: rgba(255, 107, 107, 0.6);
+    transform: scale(1.1);
+}
+
+/* ==================== PHASE 0: CARD REVEAL ==================== */
+
+.reveal-phase {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.progress-indicator {
     font-family: "Baloo Bhaijaan 2", cursive;
-    font-size: 50px;
-    color: #fefdff; 
-    text-shadow: 3px 3px 0px #8a8888, 6px 6px 0px #4e4e4e;
-    margin-bottom: 50px;
-    z-index: 10;
+    font-size: 18px;
+    color: #ff6b6b;
+    padding: 8px 20px;
+    background: rgba(255, 107, 107, 0.15);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.category-badge {
+    font-size: 14px;
+    color: #b8b8b8;
+    padding: 6px 16px;
+    background: rgba(80, 80, 80, 0.6);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .card-box {
-    width: 200px;
-    height: 300px;
-    background: rgba(50, 50, 50, 0.9);
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-    transform: scale(0.7);
-    opacity: 0;
-    animation: slideIn 0.5s ease-out forwards;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .result-box {
-    background: rgba(50, 50, 50, 0.9);
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-    transform: scale(0.7);
-    opacity: 0;
-    animation: slideIn 0.5s ease-out forwards;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .result-box h2 {
-    font-size: 1.5rem;
-    color: #ffffff;
-    font-family: 'Baloo Bhaijaan 2', cursive;
-  }
-
-  .result-box h3 {
-    font-size: 1.2rem;
-    color: #ffffff;
-    font-family: 'Baloo Bhaijaan 2', cursive;
-  }
-
-  .play-again-button {
-    padding: 12px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    background: #747373;
-    color: #d8d7d7;
-    font-family: 'Baloo Bhaijaan 2', cursive;
-    box-shadow: 3px 3px 0px #555454;
-  }
-
-  @keyframes slideIn {
-    0% {
-      transform: scale(0.7) translateY(20px);
-      opacity: 0;
-    }
-    100% {
-      transform: scale(1) translateY(0);
-      opacity: 1;
-    }
-  }
-
-.card {
-    width: 80%;
-    height: 80%;
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 10px;
-    transform-style: preserve-3d;
+    width: 100%;
+    max-width: 280px;
+    height: 450px;
+    perspective: 1000px;
+    margin: 20px 0;
 }
 
-.card-front, .card-back {
+.card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+.card-front,
+.card-back {
     width: 100%;
     height: 100%;
     position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2rem;
-    color: #000000;
-    font-weight: bold;
     backface-visibility: hidden;
-    border-radius: 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    border: 3px solid rgba(255, 107, 107, 0.3);
+    overflow: hidden;
 }
 
-/* Front face of the card */
 .card-front {
-    background-color: #6d6c6c; /* Green for front */
+    background: linear-gradient(135deg, rgba(80, 80, 80, 0.95) 0%, rgba(50, 50, 50, 0.95) 100%);
 }
 
-/* Back face of the card */
 .card-back {
-    background-color: #c9c9c6;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(255, 135, 135, 0.9) 100%);
     transform: rotateY(180deg);
 }
 
-/* Next player button */
-.next-button {
-    padding: 12px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 8px;
+.card-content {
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.card-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.card-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+.card-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.card-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 15px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.player-name {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 28px;
+    color: #ffffff;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    word-wrap: break-word;
+}
+
+.word-reveal {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 28px;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    word-wrap: break-word;
+}
+
+/* Role Badge on Card */
+.role-badge {
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.role-badge-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.role-badge-name {
+    font-family: "Baloo Bhaijaan 2", cursive;
     font-size: 18px;
+    color: #ffffff;
+    margin: 0 0 3px 0;
+    font-weight: 700;
+}
+
+.role-badge-ability {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+/* Imposter Status Badge on Card */
+.imposter-status-badge {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: rgba(255, 0, 0, 0.15);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 107, 107, 0.6);
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        border-color: rgba(255, 107, 107, 0.6);
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+    }
+    50% {
+        border-color: rgba(255, 107, 107, 0.9);
+        box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+    }
+}
+
+.imposter-status-label {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 16px;
+    color: #ffcccc;
+    margin: 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255, 107, 107, 0.8), 0 0 20px rgba(255, 107, 107, 0.4);
+}
+
+.fellow-imposters {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.fellow-imposters-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.fellow-imposters-list {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 14px;
+    color: #ffa3a3;
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+/* ==================== NAVIGATION ==================== */
+
+.card-navigation {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 280px;
+}
+
+.nav-button {
+    flex: 1;
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 18px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
-    background: #747373;
-    color: #d8d7d7;
-    font-family: 'Baloo Bhaijaan 2', cursive;
-    box-shadow: 3px 3px 0px #555454;
-  }
-  
-  .next-button:hover {
-    background: #555454;
-    color: #fff;
-    transform: scale(1.05);
-    box-shadow: 5px 5px 0px #747373;
-  }
+    transition: all 0.3s ease;
+}
 
-  .player-item {
-    font-size: 1.2rem;
-    justify-content: space-around;
+.nav-button.primary {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 0px #a83c3c;
+}
+
+.nav-button.primary:hover {
+    background: linear-gradient(135deg, #ff8787 0%, #ffa3a3 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0px #a83c3c;
+}
+
+.nav-button.primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0px #a83c3c;
+}
+
+.nav-button.secondary {
+    background: rgba(100, 100, 100, 0.8);
+    color: #ffffff;
+    box-shadow: 0 4px 0px rgba(60, 60, 60, 0.8);
+}
+
+.nav-button.secondary:hover:not(:disabled) {
+    background: rgba(120, 120, 120, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0px rgba(60, 60, 60, 0.8);
+}
+
+.nav-button.secondary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 0px rgba(60, 60, 60, 0.8);
+}
+
+.nav-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.text-link {
+    background: none;
+    border: none;
+    color: #b8b8b8;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 10px;
+    transition: color 0.3s ease;
+}
+
+.text-link:hover {
+    color: #ff6b6b;
+}
+
+/* ==================== PHASE 1: IN GAME ==================== */
+
+.game-phase {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.game-info {
+    text-align: center;
+    padding: 20px;
+    background: rgba(40, 40, 40, 0.8);
+    border-radius: 15px;
+    border: 2px solid rgba(255, 107, 107, 0.3);
+}
+
+.info-text {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 20px;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+}
+
+.imposter-count-badge {
+    font-size: 16px;
+    color: #ff6b6b;
+    font-weight: 600;
+    margin: 8px 0 0 0;
+    padding: 8px 16px;
+    background: rgba(255, 107, 107, 0.15);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    display: inline-block;
+}
+
+.category-text {
+    font-size: 14px;
+    color: #b8b8b8;
+    margin: 0;
+}
+
+.players-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.list-title {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 20px;
+    color: #ff6b6b;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.player-list-item {
+    background: linear-gradient(135deg, rgba(80, 80, 80, 0.8) 0%, rgba(50, 50, 50, 0.8) 100%);
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 107, 107, 0.3);
     display: flex;
     align-items: center;
-    background-color: #fff;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .eliminate-button {
-    padding: 8px;
-    margin-left: 10px;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.player-list-item:hover {
+    border-color: rgba(255, 107, 107, 0.6);
+    transform: translateX(5px);
+}
+
+.player-list-item.eliminated {
+    opacity: 0.4;
+    border-color: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, rgba(60, 60, 60, 0.6) 0%, rgba(40, 40, 40, 0.6) 100%);
+    text-decoration: line-through;
+}
+
+.player-number {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 20px;
+    color: #ff6b6b;
+    font-weight: bold;
+    min-width: 30px;
+}
+
+.player-list-name {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 18px;
+    color: #ffffff;
+    flex: 1;
+}
+
+.eliminate-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
     border: none;
+    color: #ffffff;
+    padding: 8px 16px;
     border-radius: 8px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
-    background: #c71717;
-    color: #fdfdfd;
-    font-family: 'Baloo Bhaijaan 2', cursive;
-    box-shadow: 3px 3px 0px #5e0404;
-  }
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 0px #a83c3c;
+}
 
-  .player-item:hover {
-    transform: scale(1.05);
-  }
-  
-  .turn-number {
+.eliminate-btn:hover {
+    background: linear-gradient(135deg, #ff8787 0%, #ffa3a3 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0px #a83c3c;
+}
+
+.eliminate-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 0px #a83c3c;
+}
+
+.eliminated-list {
+    text-align: center;
+    padding: 12px;
+    background: rgba(255, 107, 107, 0.15);
+    border-radius: 10px;
+    color: #ff8787;
+    font-size: 14px;
+}
+
+.eliminated-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(40, 40, 40, 0.6);
+    border-radius: 10px;
+}
+
+.eliminated-info p {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.was-imposter {
+    background: rgba(255, 107, 107, 0.3);
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.5);
+}
+
+.was-not-imposter {
+    background: rgba(100, 100, 100, 0.3);
+    color: #b8b8b8;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Role Announcements */
+.role-announcements {
+    margin-top: 20px;
+    padding: 16px;
+    background: rgba(60, 40, 80, 0.4);
+    border: 2px solid rgba(138, 43, 226, 0.5);
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+}
+
+.announcements-title {
+    margin: 0 0 16px 0;
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 20px;
     font-weight: bold;
-    color: #000000;
-    margin-right: 10px;
-  }
-  
-  .player-list-container h2 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    font-family: 'Baloo Bhaijaan 2', cursive;
-    color: #ffffff;
-  }
+    color: #d8b4ff;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+}
 
-  .game-controls {
+.role-announcement {
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    background: rgba(40, 40, 60, 0.7);
+    border: 1px solid rgba(138, 43, 226, 0.4);
+    border-radius: 10px;
+    backdrop-filter: blur(3px);
+}
+
+.role-announcement:last-child {
+    margin-bottom: 0;
+}
+
+.announcement-text {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.announcement-ability {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #b8b8ff;
+    font-style: italic;
+}
+
+.announcement-action {
+    margin: 0;
+    font-size: 14px;
+    color: #ffd700;
+    font-weight: 500;
+    padding: 8px;
+    background: rgba(255, 215, 0, 0.1);
+    border-left: 3px solid #ffd700;
+    border-radius: 4px;
+}
+
+.game-actions {
     display: flex;
     justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-  }
+    gap: 12px;
+}
 
-  .vote-button {
-    padding: 12px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 8px;
+.action-button {
+    font-family: "Baloo Bhaijaan 2", cursive;
     font-size: 18px;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 12px;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
-    background: #c71717;
-    color: #fdfdfd;
-    font-family: 'Baloo Bhaijaan 2', cursive;
-    box-shadow: 3px 3px 0px #5e0404;
-  }
+    transition: all 0.3s ease;
+}
+
+.action-button.primary {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+    color: #ffffff;
+    box-shadow: 0 5px 0px #a83c3c;
+}
+
+.action-button.primary:hover {
+    background: linear-gradient(135deg, #ff8787 0%, #ffa3a3 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0px #a83c3c;
+}
+
+.action-button.primary:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 0px #a83c3c;
+}
+
+.action-button.secondary {
+    background: rgba(100, 100, 100, 0.8);
+    color: #ffffff;
+    box-shadow: 0 5px 0px rgba(60, 60, 60, 0.8);
+}
+
+.action-button.secondary:hover {
+    background: rgba(120, 120, 120, 0.9);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0px rgba(60, 60, 60, 0.8);
+}
+
+.action-button.secondary:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 0px rgba(60, 60, 60, 0.8);
+}
+
+/* ==================== PHASE 2: GAME OVER ==================== */
+
+.result-box {
+    width: 100%;
+    max-width: 500px;
+    background: rgba(40, 40, 40, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    border: 3px solid rgba(255, 107, 107, 0.4);
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.result-title {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 32px;
+    color: #ffffff;
+    margin: 0 0 20px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.result-content {
+    margin-bottom: 30px;
+}
+
+.result-verdict {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 28px;
+    margin: 0 0 15px 0;
+}
+
+.result-verdict.win {
+    color: #4ade80;
+    text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+}
+
+.result-verdict.lose {
+    color: #ff6b6b;
+    text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+.result-detail {
+    font-size: 16px;
+    color: #b8b8b8;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+.result-detail strong {
+    color: #ffffff;
+}
+
+.words-reveal {
+    background: rgba(60, 60, 60, 0.6);
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.word-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(80, 80, 80, 0.4);
+    border-radius: 8px;
+}
+
+.word-label {
+    font-size: 14px;
+    color: #b8b8b8;
+}
+
+.word-value {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 20px;
+    color: #ffffff;
+}
+
+.word-value.imposter {
+    color: #ff8787;
+}
+
+/* Roles Reveal Section */
+.roles-reveal {
+    margin-top: 20px;
+    background: rgba(60, 60, 60, 0.6);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.roles-reveal-title {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 20px;
+    color: #ff6b6b;
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+
+.roles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.role-reveal-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(80, 80, 80, 0.4);
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+
+.role-player-name {
+    font-size: 16px;
+    color: #ffffff;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+.role-separator {
+    font-size: 16px;
+    color: #ff6b6b;
+}
+
+.role-name-reveal {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 18px;
+    color: #ffa3a3;
+    font-weight: 600;
+}
+
+.role-ability-reveal {
+    font-size: 14px;
+    color: #b8b8b8;
+    font-style: italic;
+}
+
+.result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+/* ==================== ANSWER FORM (Questions Mode) ==================== */
 
 .answer-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-  background: rgba(50, 50, 50, 0.9);
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-  width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+    margin: 20px 0;
 }
 
-.answer-form input {
-  width: 90%;
-  padding: 10px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-family: 'Roboto', sans-serif;
-  background: #fefdff;
-  color: #000;
-  box-shadow: 3px 3px 0px #8a8888;
+.answer-input {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    padding: 14px 18px;
+    border: 2px solid rgba(255, 107, 107, 0.4);
+    border-radius: 12px;
+    background: rgba(40, 40, 40, 0.8);
+    color: #ffffff;
+    outline: none;
+    transition: all 0.3s ease;
 }
 
-.answer-form button {
-  padding: 12px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-  background: #747373;
-  color: #d8d7d7;
-  font-family: 'Baloo Bhaijaan 2', cursive;
-  box-shadow: 3px 3px 0px #555454;
+.answer-input:focus {
+    border-color: rgba(255, 107, 107, 0.8);
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
 }
 
-.answer-form button:hover {
-  background: #555454;
-  color: #fff;
-  transform: scale(1.05);
-  box-shadow: 5px 5px 0px #747373;
+.answer-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
 }
 
-.answers-title {
-  font-size: 1.5rem;
-  font-family: 'Baloo Bhaijaan 2', cursive;
-  color: #ffffff;
-  margin-top: 20px;
+.submit-answer-btn {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 18px;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 0px #a83c3c, 0 6px 15px rgba(255, 107, 107, 0.4);
+}
+
+.submit-answer-btn:hover {
+    background: linear-gradient(135deg, #ff8787 0%, #ffa3a3 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0px #a83c3c, 0 10px 20px rgba(255, 107, 107, 0.6);
+}
+
+.submit-answer-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0px #a83c3c, 0 4px 10px rgba(255, 107, 107, 0.4);
 }
 
 .main-question {
-  font-size: 1.5rem;
-  font-family: 'Baloo Bhaijaan 2', cursive;
-  color: #ffffff;
-  margin-top: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 18px;
+    color: #ffd700;
+    text-align: center;
+    margin: 16px 0;
+    padding: 12px 20px;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.main-question strong {
+    color: #ffeb3b;
+    font-size: 20px;
+}
+
+.player-answer {
+    display: block;
+    font-size: 14px;
+    color: #b8b8ff;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+.player-role-indicator {
+    display: block;
+    font-size: 12px;
+    color: #d8b4ff;
+    margin-top: 4px;
+}
+
+.voting-active {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 16px;
+    color: #ffa3a3;
+    text-align: center;
+    margin: 12px 0;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.imposter-question {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 18px;
+    color: #ff6b6b;
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.player-list-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+}
+
+.player-list-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.submitted-answer-display {
+    margin: 16px 0;
+    padding: 12px 20px;
+    background: rgba(76, 175, 80, 0.2);
+    border: 2px solid rgba(76, 175, 80, 0.5);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.answer-submitted-label {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 16px;
+    color: #81c784;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* ==================== MOBILE OPTIMIZATIONS ==================== */
+
+@media (max-width: 480px) {
+    .room-container {
+        padding: 15px;
+    }
+
+    .room-title {
+        font-size: 24px;
+    }
+
+    .card-box {
+        max-width: 260px;
+        height: 420px;
+    }
+
+    .player-name {
+        font-size: 22px;
+    }
+
+    .word-reveal {
+        font-size: 24px;
+    }
+
+    .role-badge-name {
+        font-size: 16px;
+    }
+
+    .role-badge-ability {
+        font-size: 11px;
+    }
+
+    .imposter-status-label {
+        font-size: 14px;
+    }
+
+    .card-navigation {
+        flex-direction: column;
+    }
+
+    .nav-button {
+        width: 100%;
+    }
+
+    .result-box {
+        padding: 20px;
+    }
+
+    .result-title {
+        font-size: 26px;
+    }
+
+    .result-verdict {
+        font-size: 22px;
+    }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .card {
+        transition: none;
+    }
+    
+    .player-card,
+    .nav-button,
+    .action-button {
+        transition: none;
+    }
 }

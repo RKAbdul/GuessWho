@@ -1,9 +1,32 @@
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
     background-color: #1b1b1b;
   }
+
+button {
+    outline: none;
+    border: none;
+}
+
+button:focus {
+    outline: none;
+}
+
+button:focus-visible {
+    outline: 2px solid rgba(255, 107, 107, 0.5);
+    outline-offset: 2px;
+}
+
+div:focus {
+    outline: none;
+}
   
 .home-container {
     display: flex;
@@ -11,39 +34,170 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Logo Container with the big 2 behind */
+.logo-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 50px;
+    z-index: 10;
+    animation: logoEntrance 1s ease-out;
+}
+
+@keyframes logoEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Giant background 2 */
+.logo-number-bg {
+    position: absolute;
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 350px;
+    font-weight: 900;
+    color: #3a3a3a;
+    z-index: 1;
+    opacity: 0.3;
+    user-select: none;
+    pointer-events: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    will-change: opacity;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    outline: none;
 }
   
 .logo {
     font-family: "Baloo Bhaijaan 2", cursive;
-    font-size: 80px;
+    font-size: 90px;
     color: #fefdff; 
-    text-shadow: 3px 3px 0px #8a8888, 6px 6px 0px #4e4e4e;
-    margin-bottom: 50px;
+    margin: 0;
     z-index: 10;
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    text-shadow: 
+        3px 3px 0px #8a8888, 
+        6px 6px 0px #4e4e4e,
+        0 0 30px rgba(254, 253, 255, 0.3);
+}
+
+.logo-main {
+    animation: logoShimmer 3s ease-in-out infinite;
+}
+
+@keyframes logoShimmer {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.2);
+    }
+}
+
+.logo-version {
+    font-size: 60px;
+    color: #ff6b6b;
+    text-shadow: 
+        2px 2px 0px #a83c3c, 
+        4px 4px 0px #6b2424,
+        0 0 20px rgba(255, 107, 107, 0.6);
+    animation: versionPulse 2s ease-in-out infinite;
+}
+
+@keyframes versionPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        transform: scale(1.1);
+        filter: brightness(1.3);
+    }
+}
+
+.logo-tagline {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 18px;
+    color: #b8b8b8;
+    margin-top: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 10;
+    position: relative;
+    animation: fadeInUp 1s ease-out 0.3s both;
 }
   
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .play-button {
-    font-size: 24px;
-    padding: 15px 40px;
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 28px;
+    padding: 18px 60px;
     border: none;
-    border-radius: 30px;
-    background: #747373;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
     color: #ffffff;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease;
     z-index: 10;
-    box-shadow: 5px 5px 0px #555454;
+    box-shadow: 
+        0 8px 0px #a83c3c,
+        0 12px 25px rgba(255, 107, 107, 0.4);
+    position: relative;
+    animation: fadeInUp 1s ease-out 0.5s both;
+    outline: none;
+}
+
+.play-button:focus {
+    outline: none;
 }
   
 .play-button:hover {
-    background: #555454;
+    background: linear-gradient(135deg, #ff8787 0%, #ffa3a3 100%);
     color: #fff;
-    transform: translateY(-5px);
-    box-shadow: 8px 8px 0px #747373;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 12px 0px #a83c3c,
+        0 20px 35px rgba(255, 107, 107, 0.6);
+}
+
+.play-button:active {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 
+        0 4px 0px #a83c3c,
+        0 8px 15px rgba(255, 107, 107, 0.4);
 }
   
-  /* Floating Question Marks */
+  /* Floating Question Marks - Enhanced */
 .floating-questions {
     position: absolute;
     width: 100%;
@@ -53,56 +207,59 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    pointer-events: none; /* Prevent interaction */
+    pointer-events: none;
+    overflow: hidden;
   }
   
 .question-mark {
     position: absolute;
-    font-size: 40px;
+    font-size: 50px;
     font-weight: bold;
-    color: rgba(185, 185, 185, 0.7); /* Semi-transparent deep purple */
-    animation: floatQuestion 3s ease-in-out infinite;
+    font-family: "Baloo Bhaijaan 2", cursive;
+    background: linear-gradient(135deg, #ff6b6b, #ffa3a3, #ff8787);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: floatQuestion 5s ease-in-out infinite;
     opacity: 0;
+    will-change: transform, opacity;
 }
   
- 
-.question-mark:nth-child(1) { top: 20%; left: 30%; animation-delay: 0s; }
-.question-mark:nth-child(2) { top: 40%; left: 70%; animation-delay: 0.5s; }
-.question-mark:nth-child(3) { top: 60%; left: 20%; animation-delay: 1s; }
-.question-mark:nth-child(4) { top: 80%; left: 50%; animation-delay: 1.5s; }
-.question-mark:nth-child(5) { top: 30%; left: 80%; animation-delay: 2s; }
-.question-mark:nth-child(6) { top: 50%; left: 40%; animation-delay: 2.5s; }
-.question-mark:nth-child(7) { top: 70%; left: 60%; animation-delay: 3s; }
-.question-mark:nth-child(8) { top: 10%; left: 50%; animation-delay: 3.5s; }
-.question-mark:nth-child(9) { top: 90%; left: 30%; animation-delay: 4s; }
-.question-mark:nth-child(10) { top: 60%; left: 90%; animation-delay: 4.5s; }
+.question-mark:nth-child(1) { top: 15%; left: 25%; animation-delay: 0s; font-size: 45px; }
+.question-mark:nth-child(2) { top: 35%; left: 75%; animation-delay: 1s; font-size: 55px; }
+.question-mark:nth-child(3) { top: 65%; left: 15%; animation-delay: 2s; font-size: 42px; }
+.question-mark:nth-child(4) { top: 85%; left: 55%; animation-delay: 3s; font-size: 48px; }
+.question-mark:nth-child(5) { top: 25%; left: 85%; animation-delay: 4s; font-size: 50px; }
+.question-mark:nth-child(6) { top: 55%; left: 45%; animation-delay: 2.5s; font-size: 46px; }
   
-  /* Floating animation */
+  /* Optimized Floating animation */
 @keyframes floatQuestion {
     0% {
-      transform: translateY(0) scale(0.5);
+      transform: translateY(0) scale(0.6);
       opacity: 0;
     }
     50% {
-      transform: translateY(-30px) scale(1.2);
-      opacity: 1;
+      transform: translateY(-40px) scale(1.1);
+      opacity: 0.7;
     }
     100% {
-      transform: translateY(-60px) scale(0.5);
+      transform: translateY(-80px) scale(0.6);
       opacity: 0;
     }
 }
 
 .menu-box {
-    width: 300px;
-    background: rgba(50, 50, 50, 0.9);
-    padding: 20px;
-    border-radius: 15px;
+    background: rgba(40, 40, 40, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 107, 107, 0.3);
     text-align: center;
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-    transform: scale(0.7);
-    opacity: 0;
     animation: slideIn 0.5s ease-out forwards;
+    width: auto;
+    min-width: 300px;
+    z-index: 10;
   }
   
   @keyframes slideIn {
@@ -213,4 +370,619 @@ body {
   .player-name:nth-child(odd) {
     background: #555454;
   }
+
+/* ==================== MODE SELECTION CARDS ==================== */
+
+.mode-selection {
+  width: 450px;
+  max-width: 90vw;
+}
+
+.mode-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.mode-card {
+  background: linear-gradient(135deg, rgba(80, 80, 80, 0.8) 0%, rgba(50, 50, 50, 0.8) 100%);
+  padding: 16px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  text-align: left;
+  position: relative;
+}
+
+.mode-card:hover {
+  transform: translateX(8px);
+  border-color: rgba(255, 107, 107, 0.7);
+  background: linear-gradient(135deg, rgba(100, 100, 100, 0.8) 0%, rgba(70, 70, 70, 0.8) 100%);
+  box-shadow: 0 5px 20px rgba(255, 107, 107, 0.25);
+}
+
+.mode-card-title {
+  font-family: "Baloo Bhaijaan 2", cursive;
+  font-size: 20px;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.mode-card-description {
+  font-size: 13px;
+  color: #b0b0b0;
+  line-height: 1.3;
+  margin: 0;
+}
+
+/* ==================== ROOM CONFIGURATION ==================== */
+
+.room-config {
+  width: 450px;
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.config-section {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: rgba(60, 60, 60, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.config-section-title {
+  font-family: "Baloo Bhaijaan 2", cursive;
+  font-size: 20px;
+  color: #ff6b6b;
+  margin: 0 0 15px 0;
+  text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+}
+
+/* Player Management */
+
+.player-item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, rgba(100, 100, 100, 0.6) 0%, rgba(70, 70, 70, 0.6) 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.player-item-card:hover {
+  background: linear-gradient(135deg, rgba(110, 110, 110, 0.7) 0%, rgba(80, 80, 80, 0.7) 100%);
+  transform: translateX(5px);
+}
+
+.player-item-name {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.remove-button {
+  background: rgba(255, 107, 107, 0.8);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.remove-button:hover {
+  background: rgba(255, 107, 107, 1);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.empty-message {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 20px;
+}
+
+/* Imposter Configuration */
+
+.imposter-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.imposter-slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.config-label {
+  font-size: 16px;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.imposter-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff6b6b;
+  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+}
+
+.imposter-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.imposter-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  transition: all 0.2s;
+}
+
+.imposter-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.8);
+}
+
+.imposter-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  transition: all 0.2s;
+}
+
+.imposter-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.8);
+}
+
+.imposter-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+}
+
+/* Checkbox Styling */
+
+.randomize-option {
+  padding: 15px;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px;
+}
+
+.checkbox-input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #ff6b6b;
+}
+
+.checkbox-text {
+  font-size: 16px;
+  color: #ffffff;
+  user-select: none;
+}
+
+/* Action Buttons */
+
+.config-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.back-button,
+.start-button {
+  flex: 1;
+  font-family: "Baloo Bhaijaan 2", cursive;
+  font-size: 18px;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.back-button {
+  background: rgba(100, 100, 100, 0.8);
+  color: #ffffff;
+  box-shadow: 0 5px 0px rgba(60, 60, 60, 0.8);
+}
+
+.back-button:hover {
+  background: rgba(120, 120, 120, 0.9);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 0px rgba(60, 60, 60, 0.8);
+}
+
+.back-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0px rgba(60, 60, 60, 0.8);
+}
+
+.start-button {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+  color: #ffffff;
+  box-shadow: 0 5px 0px #a83c3c;
+}
+
+.start-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff8787 0%, #ffa3a3 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 0px #a83c3c;
+}
+
+.start-button:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0px #a83c3c;
+}
+
+.start-button:disabled {
+  background: rgba(100, 100, 100, 0.5);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Scrollbar Styling */
+
+.room-config::-webkit-scrollbar {
+  width: 8px;
+}
+
+.room-config::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.room-config::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 107, 0.5);
+  border-radius: 10px;
+}
+
+.room-config::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 107, 107, 0.7);
+}
+
+/* Special Roles Section */
+.special-roles-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.info-button {
+  padding: 12px 24px;
+  background: rgba(80, 80, 80, 0.6);
+  color: #ffffff;
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  border-radius: 12px;
+  font-family: "Baloo Bhaijaan 2", cursive;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.info-button:hover {
+  background: rgba(100, 100, 100, 0.8);
+  border-color: rgba(255, 107, 107, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Individual Role Selection */
+.individual-roles-selection {
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(60, 60, 60, 0.4);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.roles-selection-label {
+  font-size: 14px;
+  color: #d0d0d0;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.mode-restriction-note {
+  display: block;
+  font-size: 12px;
+  color: #ffd700;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.role-checkbox-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.role-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px;
+  background: rgba(80, 80, 80, 0.3);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.role-checkbox-label:hover {
+  background: rgba(100, 100, 100, 0.4);
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.role-checkbox-text {
+  font-size: 14px;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.role-checkbox-text strong {
+  color: #ff6b6b;
+  font-size: 15px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: #2a2a2a;
+  border-radius: 20px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 2px solid rgba(255, 107, 107, 0.3);
+  position: sticky;
+  top: 0;
+  background: #2a2a2a;
+  z-index: 10;
+}
+
+.modal-title {
+  font-family: "Baloo Bhaijaan 2", cursive;
+  font-size: 24px;
+  color: #ff6b6b;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 36px;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+  color: #ff6b6b;
+}
+
+.modal-body {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.role-info-card {
+  background: rgba(40, 40, 40, 0.8);
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  border-radius: 15px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.role-info-card:hover {
+  border-color: rgba(255, 107, 107, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+}
+
+.role-name {
+  font-family: "Baloo Bhaijaan 2", cursive;
+  font-size: 22px;
+  color: #ff6b6b;
+  margin: 0 0 8px 0;
+}
+
+.role-ability {
+  font-size: 16px;
+  color: #ffa3a3;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.role-description {
+  font-size: 15px;
+  color: #d0d0d0;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.role-reveal {
+  font-size: 14px;
+  color: #b8b8b8;
+  font-style: italic;
+  margin: 0;
+}
+
+.role-info-note {
+  background: rgba(255, 107, 107, 0.1);
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.role-info-note p {
+  margin: 0;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.role-info-note strong {
+  color: #ff6b6b;
+}
+
+/* Modal Scrollbar */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 107, 0.5);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 107, 107, 0.7);
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .modal-content {
+    max-height: 85vh;
+  }
+
+  .modal-title {
+    font-size: 20px;
+  }
+
+  .role-name {
+    font-size: 20px;
+  }
+
+  .role-ability {
+    font-size: 14px;
+  }
+
+  .role-description {
+    font-size: 14px;
+  }
+
+  .info-button {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+}
   
