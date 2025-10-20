@@ -20,6 +20,7 @@ export default function Home() {
     const [revealImposterStatus, setRevealImposterStatus] = React.useState(false);
     const [enableSpecialRoles, setEnableSpecialRoles] = React.useState(false);
     const [showRolesInfo, setShowRolesInfo] = React.useState(false);
+    const [totalRounds, setTotalRounds] = React.useState(5);
     
     // Individual role selection
     const [enableSeraphis, setEnableSeraphis] = React.useState(false);
@@ -43,6 +44,7 @@ export default function Home() {
             setEnableSpectra(location.state.enableSpectra ?? false);
             setEnableCensor(location.state.enableCensor ?? false);
             setEnableInquisitor(location.state.enableInquisitor ?? false);
+            setTotalRounds(location.state.totalRounds || 5);
         }
     }, [location]);
 
@@ -50,7 +52,7 @@ export default function Home() {
         setInMenu(1);
     }
 
-    //i = 0 for imposter word, 1 for answer the question
+    //i = 0 for imposter word, 1 for answer the question, 2 for who answered
     function handleModeClick(i) {
         setInMenu(2);
         selectedMode.current = i;
@@ -67,6 +69,7 @@ export default function Home() {
         setEnableSpectra(false);
         setEnableCensor(false);
         setEnableInquisitor(false);
+        setTotalRounds(5);
     }
     
     // Auto-disable Censor and Inquisitor when Questions mode is active
@@ -122,6 +125,7 @@ export default function Home() {
             showImposterCount: randomizeImposters ? showImposterCount : false,
             revealImposterStatus: revealImposterStatus,
             enableSpecialRoles: enableSpecialRoles,
+            totalRounds: totalRounds,
             selectedRoles: {
                 seraphis: enableSeraphis,
                 spectra: enableSpectra,
@@ -130,9 +134,13 @@ export default function Home() {
             }
         };
 
-        selectedMode.current === 0 
-            ? navigate('/room', { state: gameState }) 
-            : navigate('/qroom', { state: gameState });
+        if (selectedMode.current === 0) {
+            navigate('/room', { state: gameState });
+        } else if (selectedMode.current === 1) {
+            navigate('/qroom', { state: gameState });
+        } else if (selectedMode.current === 2) {
+            navigate('/waroom', { state: gameState });
+        }
     }
 
     return (
@@ -171,6 +179,10 @@ export default function Home() {
             <div className="mode-card" onClick={() => handleModeClick(1)}>
               <h3 className="mode-card-title">Answer The Question</h3>
               <p className="mode-card-description">One player gets a different question. Spot the odd one out!</p>
+            </div>
+            <div className="mode-card" onClick={() => handleModeClick(2)}>
+              <h3 className="mode-card-title">Who Answered?</h3>
+              <p className="mode-card-description">Everyone answers the same question. Guess who said it!</p>
             </div>
           </div>
         </div>
@@ -214,8 +226,36 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Imposter Configuration Section */}
-          {playerNames.length >= 3 && (
+          {/* Rounds Configuration Section - Only for mode 2 (Who Answered) */}
+          {playerNames.length >= 3 && selectedMode.current === 2 && (
+            <div className="config-section">
+              <h3 className="config-section-title">Game Settings</h3>
+              
+              <div className="imposter-controls">
+                <div className="imposter-slider-container">
+                  <label className="config-label">
+                    Number of Rounds: 
+                    <span className="imposter-value">{totalRounds}</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="3"
+                    max="10"
+                    value={totalRounds}
+                    onChange={(e) => setTotalRounds(parseInt(e.target.value))}
+                    className="imposter-slider"
+                  />
+                  <div className="slider-labels">
+                    <span>3</span>
+                    <span>10</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Imposter Configuration Section - Only for modes 0 and 1 */}
+          {playerNames.length >= 3 && selectedMode.current !== 2 && (
             <div className="config-section">
               <h3 className="config-section-title">Imposters</h3>
               
@@ -302,8 +342,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Special Roles Configuration */}
-          {playerNames.length >= 3 && (
+          {/* Special Roles Configuration - Only for modes 0 and 1 */}
+          {playerNames.length >= 3 && selectedMode.current !== 2 && (
             <div className="config-section">
               <h3 className="config-section-title">Special Roles</h3>
               
