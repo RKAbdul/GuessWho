@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import './home.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -48,12 +48,12 @@ export default function Home() {
         }
     }, [location]);
 
-    function handlePlayClick() {
+    const handlePlayClick = useCallback(() => {
         setInMenu(1);
-    }
+    }, []);
 
     //i = 0 for imposter word, 1 for answer the question, 2 for who answered
-    function handleModeClick(i) {
+    const handleModeClick = useCallback((i) => {
         setInMenu(2);
         selectedMode.current = i;
         // Reset configuration
@@ -70,7 +70,7 @@ export default function Home() {
         setEnableCensor(false);
         setEnableInquisitor(false);
         setTotalRounds(5);
-    }
+    }, []);
     
     // Auto-disable Censor and Inquisitor when Questions mode is active
     React.useEffect(() => {
@@ -78,35 +78,37 @@ export default function Home() {
             setEnableCensor(false);
             setEnableInquisitor(false);
         }
-    }, [selectedMode.current, enableSpecialRoles]);
+    }, [enableSpecialRoles]);
 
-    function handleBackToModes() {
+    const handleBackToModes = useCallback(() => {
         setInMenu(1);
-    }
+    }, []);
 
-    // Calculate max imposters: floor(players / 2)
-    const maxImposters = Math.max(1, Math.floor(playerNames.length / 2));
+    // Calculate max imposters: floor(players / 2) - memoized to avoid recalculation
+    const maxImposters = useMemo(() => {
+        return Math.max(1, Math.floor(playerNames.length / 2));
+    }, [playerNames.length]);
 
     // Ensure imposterCount doesn't exceed max
     React.useEffect(() => {
         if (imposterCount > maxImposters) {
             setImposterCount(maxImposters);
         }
-    }, [playerNames.length, maxImposters]);
+    }, [imposterCount, maxImposters]);
 
-    function handleAddPlayer() {
+    const handleAddPlayer = useCallback(() => {
         if (inputName.trim() && !playerNames.includes(inputName.trim())) {
-            setPlayerNames([...playerNames, inputName.trim()]);
+            setPlayerNames(prev => [...prev, inputName.trim()]);
             setInputName("");
         }
-    }
+    }, [inputName, playerNames]);
 
-    function handleRemovePlayer(index) {
-        setPlayerNames(playerNames.filter((_, i) => i !== index));
-    }
+    const handleRemovePlayer = useCallback((index) => {
+        setPlayerNames(prev => prev.filter((_, i) => i !== index));
+    }, []);
 
     const navigate = useNavigate();
-    function startGame() {
+    const startGame = useCallback(() => {
         if (playerNames.length < 3) {
             alert("You need at least 3 players to start!");
             return;
@@ -141,7 +143,7 @@ export default function Home() {
         } else if (selectedMode.current === 2) {
             navigate('/waroom', { state: gameState });
         }
-    }
+    }, [playerNames, maxImposters, randomizeImposters, imposterCount, revealElimination, showImposterCount, revealImposterStatus, enableSpecialRoles, totalRounds, enableSeraphis, enableSpectra, enableCensor, enableInquisitor, navigate]);
 
     return (
         <div className="home-container">

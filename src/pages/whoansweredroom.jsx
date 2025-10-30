@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import "./room.css";
 import whoAnsweredData from "../assets/whoAnsweredData";
 
@@ -28,16 +28,14 @@ export default function WhoAnsweredRoom() {
     const [roundNumber, setRoundNumber] = useState(1);
     const [usedQuestions, setUsedQuestions] = useState([]);
 
-    useEffect(() => {
-        if (players.length < 3) {
-            navigate('/');
-            return;
-        }
+    // Memoized sorted players for leaderboard
+    const sortedPlayers = useMemo(() => {
+        return Object.entries(scores)
+            .sort(([, a], [, b]) => b - a)
+            .map(([player]) => player);
+    }, [scores]);
 
-        initializeGame();
-    }, []);
-
-    function initializeGame() {
+    const initializeGame = useCallback(() => {
         // Initialize scores
         const initialScores = {};
         players.forEach(player => {
@@ -46,9 +44,9 @@ export default function WhoAnsweredRoom() {
         setScores(initialScores);
 
         startNewRound();
-    }
+    }, [players]);
 
-    function startNewRound() {
+    const startNewRound = useCallback(() => {
         // Reset round state
         setAnswers({});
         setCurrentPlayer(0);
@@ -61,54 +59,62 @@ export default function WhoAnsweredRoom() {
         setRevealedAnswerer(null);
         
         // Select random question that hasn't been used
-        let availableQuestions = whoAnsweredData.filter(q => !usedQuestions.includes(q));
-        
-        // If all questions used, reset the pool
-        if (availableQuestions.length === 0) {
-            availableQuestions = [...whoAnsweredData];
-            setUsedQuestions([]);
-        }
-        
-        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-        setCurrentQuestion(randomQuestion);
-        setUsedQuestions([...usedQuestions, randomQuestion]);
+        setUsedQuestions(prevUsed => {
+            let availableQuestions = whoAnsweredData.filter(q => !prevUsed.includes(q));
+            
+            // If all questions used, reset the pool
+            if (availableQuestions.length === 0) {
+                availableQuestions = [...whoAnsweredData];
+                const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+                setCurrentQuestion(randomQuestion);
+                return [randomQuestion];
+            }
+            
+            const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+            setCurrentQuestion(randomQuestion);
+            return [...prevUsed, randomQuestion];
+        });
         
         // Select random player whose answer will be shown
         const randomAnswerer = players[Math.floor(Math.random() * players.length)];
         setSelectedAnswerer(randomAnswerer);
-    }
+    }, [players]);
 
-    function handleAnswerSubmit(event) {
+    useEffect(() => {
+        if (players.length < 3) {
+            navigate('/');
+            return;
+        }
+
+        initializeGame();
+    }, [players.length, navigate, initializeGame]);
+
+    const handleAnswerSubmit = useCallback((event) => {
         event.preventDefault();
-        const newAnswers = { ...answers, [players[currentPlayer]]: event.target.answer.value };
-        setAnswers(newAnswers);
+        const answerValue = event.target.answer.value;
+        
+        setAnswers(prev => {
+            const newAnswers = { ...prev, [players[currentPlayer]]: answerValue };
+            
+            if (currentPlayer >= players.length - 1) {
+                // All players have answered, move to guessing phase
+                setGamePhase(1);
+                // Get the selected answerer's response from the updated answers
+                setDisplayedAnswer(newAnswers[selectedAnswerer] || "No answer provided");
+            }
+            
+            return newAnswers;
+        });
         
         if (currentPlayer < players.length - 1) {
             setIsFlipped(false);
             setTimeout(() => setCurrentPlayer(currentPlayer + 1), 500);
-        } else {
-            // All players have answered, move to guessing phase
-            setGamePhase(1);
-            // Get the selected answerer's response from the updated answers
-            setDisplayedAnswer(newAnswers[selectedAnswerer] || "No answer provided");
         }
 
         event.target.reset();
-    }
+    }, [currentPlayer, players, selectedAnswerer]);
 
-    function handleNextPlayer() {
-        if (currentPlayer < players.length - 1) {
-            setCurrentPlayer(currentPlayer + 1);
-            setIsFlipped(false);
-        } else {
-            // All players have answered, move to guessing phase
-            setGamePhase(1);
-            setDisplayedAnswer(answers[selectedAnswerer] || "No answer provided");
-            setIsFlipped(false);
-        }
-    }
-
-    function handleVote(votedPlayer) {
+    const handleVote = useCallback((votedPlayer) => {
         const voter = players[currentVoter];
         
         // Prevent self-voting
@@ -116,22 +122,26 @@ export default function WhoAnsweredRoom() {
             return;
         }
         
-        const updatedVotes = { ...votes, [voter]: votedPlayer };
-        setVotes(updatedVotes);
+        setVotes(prev => {
+            const updatedVotes = { ...prev, [voter]: votedPlayer };
+            
+            if (currentVoter >= players.length - 1) {
+                setVotingComplete(true);
+                calculateScores(updatedVotes);
+            } else {
+                setCurrentVoter(currentVoter + 1);
+            }
+            
+            return updatedVotes;
+        });
+    }, [currentVoter, players]);
 
-        if (currentVoter < players.length - 1) {
-            setCurrentVoter(currentVoter + 1);
-        } else {
-            setVotingComplete(true);
-            calculateScores(updatedVotes);
-        }
-    }
-
-    function calculateScores(finalVotes) {
-        const newScores = { ...scores };
-        
-        // Count how many people voted for the selectedAnswerer
-        const votesForAnswerer = Object.values(finalVotes).filter(guess => guess === selectedAnswerer).length;
+    const calculateScores = useCallback((finalVotes) => {
+        setScores(prevScores => {
+            const newScores = { ...prevScores };
+            
+            // Count how many people voted for the selectedAnswerer
+            const votesForAnswerer = Object.values(finalVotes).filter(guess => guess === selectedAnswerer).length;
         
         /* SCORING LOGIC:
          * Example with 4 players (Alice, Bob, Charlie, Dave):
@@ -173,27 +183,29 @@ export default function WhoAnsweredRoom() {
 
         console.log('Updated scores:', newScores);
 
-        setScores(newScores);
-        setGamePhase(2);
-        setRevealedAnswerer(selectedAnswerer);
-    }
+            setGamePhase(2);
+            setRevealedAnswerer(selectedAnswerer);
+            
+            return newScores;
+        });
+    }, [selectedAnswerer]);
 
-    function handleNextRound() {
+    const handleNextRound = useCallback(() => {
         if (roundNumber < totalRounds) {
             setRoundNumber(roundNumber + 1);
             startNewRound();
         } else {
             setGamePhase(3);
         }
-    }
+    }, [roundNumber, totalRounds, startNewRound]);
 
-    function handlePlayAgain() {
+    const handlePlayAgain = useCallback(() => {
         setRoundNumber(1);
         setUsedQuestions([]);
         initializeGame();
-    }
+    }, [initializeGame]);
 
-    function handleBackToMenu() {
+    const handleGoHome = useCallback(() => {
         navigate('/', {
             state: {
                 returnToConfig: true,
@@ -202,22 +214,7 @@ export default function WhoAnsweredRoom() {
                 totalRounds: totalRounds
             }
         });
-    }
-
-    const sortedPlayers = Object.entries(scores)
-        .sort(([, a], [, b]) => b - a)
-        .map(([player]) => player);
-
-    function handleGoHome() {
-        navigate('/', {
-            state: {
-                returnToConfig: true,
-                mode: mode,
-                players: players,
-                totalRounds: totalRounds
-            }
-        });
-    }
+    }, [navigate, mode, players, totalRounds]);
 
     return (
         <div className="room-container">

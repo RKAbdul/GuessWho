@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import "./room.css";
 import wordsData from "../assets/wordsData";
 import rolesData from "../assets/rolesData";
+import { shuffleArray, selectRandomIndices } from "../utils/arrayUtils";
 
 export default function Room() {
     const location = useLocation();
@@ -27,7 +28,6 @@ export default function Room() {
     const [wordAssignments, setWordAssignments] = useState({});
     const [currentPlayer, setCurrentPlayer] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
-    const [wordFamily, setWordFamily] = useState("");
 
     // Game phase: 0 = Revealing words, 1 = In Game, 2 = Game Over
     const [gamePhase, setGamePhase] = useState(0);
@@ -43,38 +43,25 @@ export default function Room() {
     const [playerRoles, setPlayerRoles] = useState({});
     const [revealedRoles, setRevealedRoles] = useState([]);
 
-    useEffect(() => {
-        if (players.length < 3) {
-            navigate('/');
-            return;
-        }
+    // Memoized calculation for remaining imposters
+    const remainingImposters = useMemo(() => {
+        return imposters.filter(imp => !eliminatedPlayers.includes(imp));
+    }, [imposters, eliminatedPlayers]);
 
-        initializeGame();
-    }, []);
-
-    function initializeGame() {
-        let shuffled = [...players].sort(() => Math.random() - 0.5);
+    const initializeGame = useCallback(() => {
+        const shuffled = shuffleArray(players);
         setShuffledPlayers(shuffled);
 
         const randomFamily = wordsData[Math.floor(Math.random() * wordsData.length)];
-        setWordFamily(randomFamily.family);
-
-        let wordChoices = [...randomFamily.words].sort(() => Math.random() - 0.5);
+        const wordChoices = shuffleArray(randomFamily.words);
         setMainWord(wordChoices[0]);
         setImposterWord(wordChoices[1]);
 
         const assignedWords = {};
         shuffled.forEach((player) => (assignedWords[player] = wordChoices[0]));
 
-        // Pick imposters based on imposterCount
-        const imposterIndices = [];
-        while (imposterIndices.length < imposterCount) {
-            const randomIndex = Math.floor(Math.random() * shuffled.length);
-            if (!imposterIndices.includes(randomIndex)) {
-                imposterIndices.push(randomIndex);
-            }
-        }
-
+        // Optimized imposter selection using selectRandomIndices
+        const imposterIndices = selectRandomIndices(shuffled.length, imposterCount);
         const selectedImposters = imposterIndices.map(i => shuffled[i]);
         setImposters(selectedImposters);
         
@@ -97,11 +84,10 @@ export default function Room() {
 
             if (enabledRoles.length > 0) {
                 const roles = {};
-                const regularPlayers = shuffled.filter(p => !selectedImposters.includes(p));
                 
                 // Randomly select players to get roles (up to number of enabled roles)
                 const numRolesToAssign = Math.min(enabledRoles.length, Math.max(2, Math.floor(shuffled.length / 2)));
-                const playersToAssignRoles = [...shuffled].sort(() => Math.random() - 0.5).slice(0, numRolesToAssign);
+                const playersToAssignRoles = shuffleArray(shuffled).slice(0, numRolesToAssign);
                 
                 playersToAssignRoles.forEach(player => {
                     const isImposter = selectedImposters.includes(player);
@@ -132,9 +118,18 @@ export default function Room() {
         } else {
             setPlayerRoles({});
         }
-    }
+    }, [players, imposterCount, enableSpecialRoles, selectedRoles]);
 
-    function handlePlayAgainClick() {
+    useEffect(() => {
+        if (players.length < 3) {
+            navigate('/');
+            return;
+        }
+
+        initializeGame();
+    }, [players.length, navigate, initializeGame]);
+
+    const handlePlayAgainClick = useCallback(() => {
         setCurrentPlayer(0);
         setIsFlipped(false);
         setGamePhase(0);
@@ -142,9 +137,9 @@ export default function Room() {
         setEliminatedPlayers([]);
         setImposterEliminated(false);
         initializeGame();
-    }
+    }, [initializeGame]);
 
-    function handleNextClick() {
+    const handleNextClick = useCallback(() => {
         if (currentPlayer < players.length - 1) {
             setIsFlipped(false);
             setTimeout(() => {
@@ -153,22 +148,22 @@ export default function Room() {
         } else {
             setGamePhase(1);
         }
-    }
+    }, [currentPlayer, players.length]);
 
-    function handlePreviousClick() {
+    const handlePreviousClick = useCallback(() => {
         if (currentPlayer > 0) {
             setIsFlipped(false);
             setTimeout(() => {
                 setCurrentPlayer((prevPlayer) => prevPlayer - 1);
             }, 300);
         }
-    }
+    }, [currentPlayer]);
 
-    function handleGoHome() {
+    const handleGoHome = useCallback(() => {
         navigate('/');
-    }
+    }, [navigate]);
 
-    function handleChangeModeClick() {
+    const handleChangeModeClick = useCallback(() => {
         navigate('/', { 
             state: { 
                 returnToConfig: true,
@@ -186,9 +181,9 @@ export default function Room() {
                 enableInquisitor: selectedRoles.inquisitor
             } 
         });
-    }
+    }, [navigate, mode, players, imposterCount, randomizeImposters, revealElimination, showImposterCount, revealImposterStatus, enableSpecialRoles, selectedRoles]);
 
-    function handleBackToConfig() {
+    const handleBackToConfig = useCallback(() => {
         navigate('/', { 
             state: { 
                 returnToConfig: true,
@@ -206,41 +201,47 @@ export default function Room() {
                 enableInquisitor: selectedRoles.inquisitor
             } 
         });
-    }
+    }, [navigate, mode, players, imposterCount, randomizeImposters, revealElimination, showImposterCount, revealImposterStatus, enableSpecialRoles, selectedRoles]);
 
-    function eliminatePlayer(player) {
+    const eliminatePlayer = useCallback((player) => {
         const isImposter = imposters.includes(player);
         
-        const newEliminatedPlayers = [...eliminatedPlayers, player];
-        const newShuffledPlayers = shuffledPlayers.filter(p => p !== player);
+        setEliminatedPlayers(prev => {
+            const newEliminatedPlayers = [...prev, player];
+            
+            // Check if all imposters are eliminated
+            const newRemainingImposters = imposters.filter(imp => !newEliminatedPlayers.includes(imp));
+            const newShuffledPlayers = shuffledPlayers.filter(p => p !== player);
+            const remainingRegularPlayers = newShuffledPlayers.length - newRemainingImposters.length;
+            
+            if (newRemainingImposters.length === 0) {
+                setImposterEliminated(true);
+                setGamePhase(2);
+            } else if (remainingRegularPlayers <= newRemainingImposters.length) {
+                // Imposters win if remaining non-imposter players are equal to or less than imposters
+                setImposterEliminated(false);
+                setGamePhase(2);
+            }
+            
+            return newEliminatedPlayers;
+        });
         
-        setEliminatedPlayers(newEliminatedPlayers);
-        setShuffledPlayers(newShuffledPlayers);
+        setShuffledPlayers(prev => prev.filter(p => p !== player));
 
         // Check if eliminated player has a role that should be revealed on death
         const playerRole = playerRoles[player];
         if (playerRole && playerRole.revealOn === 'death') {
-            // Add to revealed roles if not already there
-            if (!revealedRoles.some(r => r.player === player)) {
-                setRevealedRoles(prev => [...prev, { player, role: playerRole }]);
-            }
-        }
-
-        // Check if all imposters are eliminated
-        const remainingImposters = imposters.filter(imp => !newEliminatedPlayers.includes(imp));
-        const remainingRegularPlayers = newShuffledPlayers.length - remainingImposters.length;
-        
-        if (remainingImposters.length === 0) {
-            setImposterEliminated(true);
-            setGamePhase(2);
-        } else if (remainingRegularPlayers <= remainingImposters.length) {
-            // Imposters win if remaining non-imposter players are equal to or less than imposters
-            setImposterEliminated(false);
-            setGamePhase(2);
+            setRevealedRoles(prev => {
+                // Add to revealed roles if not already there
+                if (!prev.some(r => r.player === player)) {
+                    return [...prev, { player, role: playerRole }];
+                }
+                return prev;
+            });
         }
         
         setVoting(false);
-    }
+    }, [imposters, shuffledPlayers, playerRoles]);
     
 
     return (

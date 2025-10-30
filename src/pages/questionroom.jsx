@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import "./room.css";
 import questionsData from "../assets/questionsData";
 import rolesData from "../assets/rolesData";
+import { shuffleArray } from "../utils/arrayUtils";
 
 export default function Room() {
     const location = useLocation();
@@ -16,7 +17,6 @@ export default function Room() {
     const selectedRoles = location.state?.selectedRoles || {};
     const revealImposterStatus = location.state?.revealImposterStatus || false;
 
-    const [shuffledPlayers, setShuffledPlayers] = useState([]);
     const [questionsAssignment, setQuestionsAssignment] = useState({});
     const [answers, setAnswers] = useState({});
     const [currentPlayer, setCurrentPlayer] = useState(0);
@@ -33,18 +33,11 @@ export default function Room() {
     const [playerRoles, setPlayerRoles] = useState({});
     const [revealedRoles, setRevealedRoles] = useState([]);
 
-    useEffect(() => {
-        if (players.length < 3) return;
-    
-        initializeGame();
-    }, [players]);
-
-    function initializeGame() {
-        let shuffled = [...players].sort(() => Math.random() - 0.5);
-        setShuffledPlayers(shuffled);
+    const initializeGame = useCallback(() => {
+        const shuffled = shuffleArray(players);
     
         const randomQuestionSet = questionsData[Math.floor(Math.random() * questionsData.length)];
-        let questionChoices = [...randomQuestionSet.questions].sort(() => Math.random() - 0.5);
+        const questionChoices = shuffleArray(randomQuestionSet.questions);
     
         const assignedQuestions = {};
         let questionIndex = 0;
@@ -72,32 +65,27 @@ export default function Room() {
 
             if (enabledRoles.length > 0) {
                 const numRolesToAssign = Math.min(enabledRoles.length, Math.max(2, Math.floor(shuffled.length / 2)));
-                const shuffledRoles = [...enabledRoles].sort(() => Math.random() - 0.5);
+                const shuffledRoles = shuffleArray(enabledRoles);
+                const shuffledPlayersForRoles = shuffleArray(shuffled);
                 const assignedRoles = {};
 
-                for (let i = 0; i < numRolesToAssign && i < shuffledRoles.length; i++) {
-                    let randomPlayerIndex;
-                    let randomPlayer;
-                    let attempts = 0;
-                    
-                    do {
-                        randomPlayerIndex = Math.floor(Math.random() * shuffled.length);
-                        randomPlayer = shuffled[randomPlayerIndex];
-                        attempts++;
-                    } while (assignedRoles[randomPlayer] && attempts < 50);
-
-                    if (!assignedRoles[randomPlayer]) {
-                        assignedRoles[randomPlayer] = shuffledRoles[i];
-                    }
+                // Assign roles to first N shuffled players
+                for (let i = 0; i < numRolesToAssign && i < shuffledRoles.length && i < shuffledPlayersForRoles.length; i++) {
+                    assignedRoles[shuffledPlayersForRoles[i]] = shuffledRoles[i];
                 }
 
                 setPlayerRoles(assignedRoles);
             }
         }
-    }
+    }, [players, enableSpecialRoles, selectedRoles]);
+
+    useEffect(() => {
+        if (players.length < 3) return;
     
-    function handlePlayAgainClick() {
-        setShuffledPlayers([]);
+        initializeGame();
+    }, [players.length, initializeGame]);
+    
+    const handlePlayAgainClick = useCallback(() => {
         setQuestionsAssignment({});
         setAnswers({});
         setCurrentPlayer(0);
@@ -112,11 +100,11 @@ export default function Room() {
         setRevealedRoles([]);
 
         initializeGame();
-    }
+    }, [initializeGame]);
 
-    function handleAnswerSubmit(event) {
+    const handleAnswerSubmit = useCallback((event) => {
         event.preventDefault();
-        setAnswers({ ...answers, [players[currentPlayer]]: event.target.answer.value });
+        setAnswers(prev => ({ ...prev, [players[currentPlayer]]: event.target.answer.value }));
         
         if (currentPlayer < players.length - 1) {
             setIsFlipped(false);
@@ -126,38 +114,43 @@ export default function Room() {
         }
 
         event.target.reset();
-    }
+    }, [currentPlayer, players]);
 
-    function eliminatePlayer(player) {
+    const eliminatePlayer = useCallback((player) => {
         const isImposter = player === imposter;
         const wasImposter = isImposter;
         
-        setEliminatedPlayers([...eliminatedPlayers, { name: player, wasImposter }]);
+        setEliminatedPlayers(prev => {
+            const newEliminatedPlayers = [...prev, { name: player, wasImposter }];
+            
+            // Get remaining active players
+            const remainingPlayers = players.filter(p => 
+                !newEliminatedPlayers.some(e => e.name === p)
+            );
+            
+            // End game if imposter eliminated or too few players remain
+            if (isImposter || remainingPlayers.length < 3) {
+                setGamePhase(2);
+            }
+            
+            return newEliminatedPlayers;
+        });
+        
         setImposterEliminated(isImposter);
         setVoting(false);
         
         // Check for role reveal on death
         const playerRole = playerRoles[player];
         if (playerRole && playerRole.revealOn === 'death') {
-            setRevealedRoles([...revealedRoles, { player, role: playerRole }]);
+            setRevealedRoles(prev => [...prev, { player, role: playerRole }]);
         }
-        
-        // Get remaining active players
-        const remainingPlayers = players.filter(p => 
-            !eliminatedPlayers.some(e => e.name === p) && p !== player
-        );
-        
-        // End game if imposter eliminated or too few players remain
-        if (isImposter || remainingPlayers.length < 3) {
-            setGamePhase(2);
-        }
-    }
+    }, [imposter, players, playerRoles]);
 
-    function handleGoHome() {
+    const handleGoHome = useCallback(() => {
         navigate('/');
-    }
+    }, [navigate]);
 
-    function handleChangeModeClick() {
+    const handleChangeModeClick = useCallback(() => {
         navigate('/', {
             state: {
                 returnToConfig: true,
@@ -168,9 +161,9 @@ export default function Room() {
                 revealImposterStatus: revealImposterStatus
             }
         });
-    }
+    }, [navigate, players, mode, enableSpecialRoles, selectedRoles, revealImposterStatus]);
 
-    function handleBackToConfig() {
+    const handleBackToConfig = useCallback(() => {
         navigate('/', {
             state: {
                 returnToConfig: true,
@@ -181,23 +174,23 @@ export default function Room() {
                 revealImposterStatus: revealImposterStatus
             }
         });
-    }
+    }, [navigate, players, mode, enableSpecialRoles, selectedRoles, revealImposterStatus]);
 
-    function handlePreviousClick() {
+    const handlePreviousClick = useCallback(() => {
         if (currentPlayer > 0) {
             setIsFlipped(false);
             setTimeout(() => setCurrentPlayer(currentPlayer - 1), 400);
         }
-    }
+    }, [currentPlayer]);
 
-    function handleNextClick() {
+    const handleNextClick = useCallback(() => {
         if (currentPlayer < players.length - 1) {
             setIsFlipped(false);
             setTimeout(() => setCurrentPlayer(currentPlayer + 1), 400);
         } else {
             setGamePhase(1);
         }
-    }
+    }, [currentPlayer, players.length]);
 
     return (
         <div className="room-container">
