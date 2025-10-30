@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import "./room.css";
@@ -42,11 +42,6 @@ export default function Room() {
     // Special roles state
     const [playerRoles, setPlayerRoles] = useState({});
     const [revealedRoles, setRevealedRoles] = useState([]);
-
-    // Memoized calculation for remaining imposters
-    const remainingImposters = useMemo(() => {
-        return imposters.filter(imp => !eliminatedPlayers.includes(imp));
-    }, [imposters, eliminatedPlayers]);
 
     const initializeGame = useCallback(() => {
         const shuffled = shuffleArray(players);
@@ -204,8 +199,6 @@ export default function Room() {
     }, [navigate, mode, players, imposterCount, randomizeImposters, revealElimination, showImposterCount, revealImposterStatus, enableSpecialRoles, selectedRoles]);
 
     const eliminatePlayer = useCallback((player) => {
-        const isImposter = imposters.includes(player);
-        
         setEliminatedPlayers(prev => {
             const newEliminatedPlayers = [...prev, player];
             

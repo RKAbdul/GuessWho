@@ -26,7 +26,7 @@ export default function WhoAnsweredRoom() {
     const [votingComplete, setVotingComplete] = useState(false);
     const [scores, setScores] = useState({});
     const [roundNumber, setRoundNumber] = useState(1);
-    const [usedQuestions, setUsedQuestions] = useState([]);
+    const [_usedQuestions, setUsedQuestions] = useState([]);
 
     // Memoized sorted players for leaderboard
     const sortedPlayers = useMemo(() => {
@@ -34,17 +34,6 @@ export default function WhoAnsweredRoom() {
             .sort(([, a], [, b]) => b - a)
             .map(([player]) => player);
     }, [scores]);
-
-    const initializeGame = useCallback(() => {
-        // Initialize scores
-        const initialScores = {};
-        players.forEach(player => {
-            initialScores[player] = 0;
-        });
-        setScores(initialScores);
-
-        startNewRound();
-    }, [players]);
 
     const startNewRound = useCallback(() => {
         // Reset round state
@@ -80,6 +69,17 @@ export default function WhoAnsweredRoom() {
         setSelectedAnswerer(randomAnswerer);
     }, [players]);
 
+    const initializeGame = useCallback(() => {
+        // Initialize scores
+        const initialScores = {};
+        players.forEach(player => {
+            initialScores[player] = 0;
+        });
+        setScores(initialScores);
+
+        startNewRound();
+    }, [players, startNewRound]);
+
     useEffect(() => {
         if (players.length < 3) {
             navigate('/');
@@ -113,28 +113,6 @@ export default function WhoAnsweredRoom() {
 
         event.target.reset();
     }, [currentPlayer, players, selectedAnswerer]);
-
-    const handleVote = useCallback((votedPlayer) => {
-        const voter = players[currentVoter];
-        
-        // Prevent self-voting
-        if (voter === votedPlayer) {
-            return;
-        }
-        
-        setVotes(prev => {
-            const updatedVotes = { ...prev, [voter]: votedPlayer };
-            
-            if (currentVoter >= players.length - 1) {
-                setVotingComplete(true);
-                calculateScores(updatedVotes);
-            } else {
-                setCurrentVoter(currentVoter + 1);
-            }
-            
-            return updatedVotes;
-        });
-    }, [currentVoter, players]);
 
     const calculateScores = useCallback((finalVotes) => {
         setScores(prevScores => {
@@ -189,6 +167,28 @@ export default function WhoAnsweredRoom() {
             return newScores;
         });
     }, [selectedAnswerer]);
+
+    const handleVote = useCallback((votedPlayer) => {
+        const voter = players[currentVoter];
+        
+        // Prevent self-voting
+        if (voter === votedPlayer) {
+            return;
+        }
+        
+        setVotes(prev => {
+            const updatedVotes = { ...prev, [voter]: votedPlayer };
+            
+            if (currentVoter >= players.length - 1) {
+                setVotingComplete(true);
+                calculateScores(updatedVotes);
+            } else {
+                setCurrentVoter(currentVoter + 1);
+            }
+            
+            return updatedVotes;
+        });
+    }, [currentVoter, players, calculateScores]);
 
     const handleNextRound = useCallback(() => {
         if (roundNumber < totalRounds) {
