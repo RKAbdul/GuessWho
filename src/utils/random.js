@@ -42,3 +42,13 @@ export function pickOne(array) {
 export function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+/** Returns a fresh id identifying one playthrough, used to tell "resume this
+ * game" (same id) apart from "start a new game" (different id) across a
+ * refresh or back/forward navigation. */
+export function makeGameId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}

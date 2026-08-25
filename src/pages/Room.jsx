@@ -7,22 +7,39 @@ import wordsEs from "../data/wordsEs";
 import roles from "../data/roles";
 import { shuffle, sampleUnique, pickOne } from "../utils/random";
 import { LANGUAGES } from "../constants/languages";
+import { loadRoomSession, saveRoomSession, clearRoomSession } from "../utils/roomSession";
+
+const ROUTE_KEY = "room";
 
 export default function Room() {
     const location = useLocation();
     const navigate = useNavigate();
-    const players = location.state?.players || [];
-    const mode = location.state?.mode;
-    const imposterCount = location.state?.imposterCount || 1;
-    const revealElimination = location.state?.revealElimination ?? true;
-    const showImposterCount = location.state?.showImposterCount ?? false;
-    const randomizeImposters = location.state?.randomizeImposters ?? false;
-    const revealImposterStatus = location.state?.revealImposterStatus ?? false;
-    const showWordCategory = location.state?.showWordCategory ?? true;
-    const language = location.state?.language ?? LANGUAGES.SPANISH;
+
+    // Loaded once on mount: a prior in-progress game for this route, if any.
+    const [stored] = useState(() => loadRoomSession(ROUTE_KEY));
+    const incomingGameId = location.state?.gameId;
+    // Resume when this navigation's gameId matches the saved one (refresh, or
+    // browser back/forward within the app), or when there's no location.state
+    // at all (direct URL/bookmark reload) and we have something to fall back to.
+    const isResume = !!stored && (
+        (!!incomingGameId && stored.gameId === incomingGameId) ||
+        !location.state?.players
+    );
+    const effectiveConfig = isResume ? stored.config : (location.state || {});
+    const gameId = isResume ? stored.gameId : incomingGameId;
+
+    const players = effectiveConfig.players || [];
+    const mode = effectiveConfig.mode;
+    const imposterCount = effectiveConfig.imposterCount || 1;
+    const revealElimination = effectiveConfig.revealElimination ?? true;
+    const showImposterCount = effectiveConfig.showImposterCount ?? false;
+    const randomizeImposters = effectiveConfig.randomizeImposters ?? false;
+    const revealImposterStatus = effectiveConfig.revealImposterStatus ?? false;
+    const showWordCategory = effectiveConfig.showWordCategory ?? true;
+    const language = effectiveConfig.language ?? LANGUAGES.SPANISH;
     const wordsData = language === LANGUAGES.ENGLISH ? words : wordsEs;
-    const enableSpecialRoles = location.state?.enableSpecialRoles ?? false;
-    const selectedRoles = location.state?.selectedRoles || {
+    const enableSpecialRoles = effectiveConfig.enableSpecialRoles ?? false;
+    const selectedRoles = effectiveConfig.selectedRoles || {
         seraphis: false,
         spectra: false,
         censor: false,
@@ -55,8 +72,45 @@ export default function Room() {
             return;
         }
 
-        initializeGame();
+        if (isResume && stored?.state) {
+            const s = stored.state;
+            setShuffledPlayers(s.shuffledPlayers || []);
+            setWordAssignments(s.wordAssignments || {});
+            setCurrentPlayer(s.currentPlayer || 0);
+            setIsFlipped(s.isFlipped || false);
+            setWordFamily(s.wordFamily || "");
+            setGamePhase(s.gamePhase ?? 0);
+            setVoting(s.voting || false);
+            setEliminatedPlayers(s.eliminatedPlayers || []);
+            setImposterEliminated(s.imposterEliminated || false);
+            setMainWord(s.mainWord ?? null);
+            setImposterWord(s.imposterWord ?? null);
+            setImposters(s.imposters || []);
+            setPlayerRoles(s.playerRoles || {});
+            setRevealedRoles(s.revealedRoles || []);
+        } else {
+            initializeGame();
+        }
     }, []);
+
+    // Keep the in-progress round saved so a refresh or back/forward can
+    // resume it instead of starting a new random game.
+    useEffect(() => {
+        if (!gameId || shuffledPlayers.length === 0) return;
+        saveRoomSession(ROUTE_KEY, gameId, {
+            players, mode, imposterCount, revealElimination, showImposterCount,
+            randomizeImposters, revealImposterStatus, showWordCategory, language,
+            enableSpecialRoles, selectedRoles
+        }, {
+            shuffledPlayers, wordAssignments, currentPlayer, isFlipped, wordFamily,
+            gamePhase, voting, eliminatedPlayers, imposterEliminated, mainWord,
+            imposterWord, imposters, playerRoles, revealedRoles
+        });
+    }, [
+        shuffledPlayers, wordAssignments, currentPlayer, isFlipped, wordFamily,
+        gamePhase, voting, eliminatedPlayers, imposterEliminated, mainWord,
+        imposterWord, imposters, playerRoles, revealedRoles
+    ]);
 
     function initializeGame() {
         let shuffled = shuffle(players);
@@ -161,10 +215,12 @@ export default function Room() {
     }
 
     function handleGoHome() {
+        clearRoomSession(ROUTE_KEY);
         navigate('/');
     }
 
     function handleBackToConfig() {
+        clearRoomSession(ROUTE_KEY);
         navigate('/', {
             state: {
                 returnToConfig: true,

@@ -7,18 +7,32 @@ import questionsEs from "../data/questionsEs";
 import roles from "../data/roles";
 import { shuffle, sampleUnique, pickOne } from "../utils/random";
 import { LANGUAGES } from "../constants/languages";
+import { loadRoomSession, saveRoomSession, clearRoomSession } from "../utils/roomSession";
+
+const ROUTE_KEY = "qroom";
 
 export default function QuestionRoom() {
     const location = useLocation();
     const navigate = useNavigate();
-    const players = location.state?.players || [];
-    const mode = location.state?.mode;
+
+    // Loaded once on mount: a prior in-progress game for this route, if any.
+    const [stored] = useState(() => loadRoomSession(ROUTE_KEY));
+    const incomingGameId = location.state?.gameId;
+    const isResume = !!stored && (
+        (!!incomingGameId && stored.gameId === incomingGameId) ||
+        !location.state?.players
+    );
+    const effectiveConfig = isResume ? stored.config : (location.state || {});
+    const gameId = isResume ? stored.gameId : incomingGameId;
+
+    const players = effectiveConfig.players || [];
+    const mode = effectiveConfig.mode;
 
     // Special roles and imposter reveal states
-    const enableSpecialRoles = location.state?.enableSpecialRoles || false;
-    const selectedRoles = location.state?.selectedRoles || {};
-    const revealImposterStatus = location.state?.revealImposterStatus || false;
-    const language = location.state?.language ?? LANGUAGES.SPANISH;
+    const enableSpecialRoles = effectiveConfig.enableSpecialRoles || false;
+    const selectedRoles = effectiveConfig.selectedRoles || {};
+    const revealImposterStatus = effectiveConfig.revealImposterStatus || false;
+    const language = effectiveConfig.language ?? LANGUAGES.SPANISH;
     const questionsData = language === LANGUAGES.ENGLISH ? questions : questionsEs;
 
     const [shuffledPlayers, setShuffledPlayers] = useState([]);
@@ -44,8 +58,42 @@ export default function QuestionRoom() {
             return;
         }
 
-        initializeGame();
+        if (isResume && stored?.state) {
+            const s = stored.state;
+            setShuffledPlayers(s.shuffledPlayers || []);
+            setQuestionsAssignment(s.questionsAssignment || {});
+            setAnswers(s.answers || {});
+            setCurrentPlayer(s.currentPlayer || 0);
+            setIsFlipped(s.isFlipped || false);
+            setGamePhase(s.gamePhase ?? 0);
+            setVoting(s.voting || false);
+            setEliminatedPlayers(s.eliminatedPlayers || []);
+            setImposterEliminated(s.imposterEliminated || false);
+            setImposter(s.imposter ?? null);
+            setQuestionData(s.questionData || []);
+            setPlayerRoles(s.playerRoles || {});
+            setRevealedRoles(s.revealedRoles || []);
+        } else {
+            initializeGame();
+        }
     }, []);
+
+    // Keep the in-progress round saved so a refresh or back/forward can
+    // resume it instead of starting a new random game.
+    useEffect(() => {
+        if (!gameId || shuffledPlayers.length === 0) return;
+        saveRoomSession(ROUTE_KEY, gameId, {
+            players, mode, enableSpecialRoles, selectedRoles, revealImposterStatus, language
+        }, {
+            shuffledPlayers, questionsAssignment, answers, currentPlayer, isFlipped,
+            gamePhase, voting, eliminatedPlayers, imposterEliminated, imposter,
+            questionData, playerRoles, revealedRoles
+        });
+    }, [
+        shuffledPlayers, questionsAssignment, answers, currentPlayer, isFlipped,
+        gamePhase, voting, eliminatedPlayers, imposterEliminated, imposter,
+        questionData, playerRoles, revealedRoles
+    ]);
 
     function initializeGame() {
         let shuffled = shuffle(players);
@@ -147,10 +195,12 @@ export default function QuestionRoom() {
     }
 
     function handleGoHome() {
+        clearRoomSession(ROUTE_KEY);
         navigate('/');
     }
 
     function handleBackToConfig() {
+        clearRoomSession(ROUTE_KEY);
         navigate('/', {
             state: {
                 returnToConfig: true,

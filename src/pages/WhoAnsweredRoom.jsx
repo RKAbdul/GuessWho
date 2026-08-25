@@ -6,14 +6,28 @@ import whoAnswered from "../data/whoAnswered";
 import whoAnsweredEs from "../data/whoAnsweredEs";
 import { pickOne } from "../utils/random";
 import { LANGUAGES } from "../constants/languages";
+import { loadRoomSession, saveRoomSession, clearRoomSession } from "../utils/roomSession";
+
+const ROUTE_KEY = "waroom";
 
 export default function WhoAnsweredRoom() {
     const location = useLocation();
     const navigate = useNavigate();
-    const players = location.state?.players || [];
-    const mode = location.state?.mode;
-    const totalRounds = location.state?.totalRounds || 5;
-    const language = location.state?.language ?? LANGUAGES.SPANISH;
+
+    // Loaded once on mount: a prior in-progress game for this route, if any.
+    const [stored] = useState(() => loadRoomSession(ROUTE_KEY));
+    const incomingGameId = location.state?.gameId;
+    const isResume = !!stored && (
+        (!!incomingGameId && stored.gameId === incomingGameId) ||
+        !location.state?.players
+    );
+    const effectiveConfig = isResume ? stored.config : (location.state || {});
+    const gameId = isResume ? stored.gameId : incomingGameId;
+
+    const players = effectiveConfig.players || [];
+    const mode = effectiveConfig.mode;
+    const totalRounds = effectiveConfig.totalRounds || 5;
+    const language = effectiveConfig.language ?? LANGUAGES.SPANISH;
     const whoAnsweredData = language === LANGUAGES.ENGLISH ? whoAnswered : whoAnsweredEs;
 
     const [currentQuestion, setCurrentQuestion] = useState("");
@@ -39,8 +53,43 @@ export default function WhoAnsweredRoom() {
             return;
         }
 
-        initializeGame();
+        if (isResume && stored?.state) {
+            const s = stored.state;
+            setCurrentQuestion(s.currentQuestion || "");
+            setAnswers(s.answers || {});
+            setCurrentPlayer(s.currentPlayer || 0);
+            setIsFlipped(s.isFlipped || false);
+            setGamePhase(s.gamePhase ?? 0);
+            setSelectedAnswerer(s.selectedAnswerer ?? null);
+            setDisplayedAnswer(s.displayedAnswer || "");
+            setRevealedAnswerer(s.revealedAnswerer ?? null);
+            setVotes(s.votes || {});
+            setCurrentVoter(s.currentVoter || 0);
+            setVotingComplete(s.votingComplete || false);
+            setScores(s.scores || {});
+            setRoundNumber(s.roundNumber || 1);
+            setUsedQuestions(s.usedQuestions || []);
+        } else {
+            initializeGame();
+        }
     }, []);
+
+    // Keep the in-progress round saved so a refresh or back/forward can
+    // resume it instead of starting a new random game.
+    useEffect(() => {
+        if (!gameId || currentQuestion === "") return;
+        saveRoomSession(ROUTE_KEY, gameId, {
+            players, mode, totalRounds, language
+        }, {
+            currentQuestion, answers, currentPlayer, isFlipped, gamePhase,
+            selectedAnswerer, displayedAnswer, revealedAnswerer, votes,
+            currentVoter, votingComplete, scores, roundNumber, usedQuestions
+        });
+    }, [
+        currentQuestion, answers, currentPlayer, isFlipped, gamePhase,
+        selectedAnswerer, displayedAnswer, revealedAnswerer, votes,
+        currentVoter, votingComplete, scores, roundNumber, usedQuestions
+    ]);
 
     function initializeGame() {
         // Initialize scores
@@ -182,6 +231,7 @@ export default function WhoAnsweredRoom() {
         .map(([player]) => player);
 
     function handleGoHome() {
+        clearRoomSession(ROUTE_KEY);
         navigate('/', {
             state: {
                 returnToConfig: true,

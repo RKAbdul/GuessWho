@@ -3,7 +3,7 @@ import './home.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { GAME_MODES } from '../constants/gameModes';
 import { LANGUAGES } from '../constants/languages';
-import { randomInt } from '../utils/random';
+import { randomInt, makeGameId } from '../utils/random';
 import { THEMES, applyTheme, getStoredTheme } from '../utils/theme';
 
 
@@ -132,6 +132,7 @@ export default function Home() {
             : imposterCount;
 
         const gameState = {
+            gameId: makeGameId(),
             players: playerNames,
             mode: selectedMode,
             imposterCount: finalImposterCount,
