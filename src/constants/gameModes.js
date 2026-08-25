@@ -4,4 +4,5 @@ export const GAME_MODES = {
     IMPOSTER_WORD: 0,
     ANSWER_THE_QUESTION: 1,
     WHO_ANSWERED: 2,
+    DESCRIBE_GUESS: 3,
 };

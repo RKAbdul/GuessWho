@@ -1357,6 +1357,32 @@ button:focus-visible {
     color: var(--color-primary);
 }
 
+/* Describe & Guess timer */
+.timer-display {
+    font-family: "Baloo Bhaijaan 2", cursive;
+    font-size: 48px;
+    color: #ffd700;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Describe & Guess current-word card — same look as .card-front but static
+   (no flip), since this mode doesn't use the tap-to-reveal interaction. */
+.word-display-card {
+    width: 100%;
+    max-width: 280px;
+    min-height: 220px;
+    margin: 10px 0;
+    background: linear-gradient(135deg, rgba(80, 80, 80, 0.95) 0%, rgba(50, 50, 50, 0.95) 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    border: 3px solid rgba(var(--color-primary-rgb), 0.3);
+    overflow: hidden;
+}
+
 .game-over-actions {
     display: flex;
     gap: 12px;

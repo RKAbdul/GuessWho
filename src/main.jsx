@@ -6,6 +6,7 @@ import Home from "./pages/Home.jsx";
 import Room from "./pages/Room.jsx";
 import QuestionRoom from "./pages/QuestionRoom.jsx";
 import WhoAnsweredRoom from "./pages/WhoAnsweredRoom.jsx";
+import TeamRoom from "./pages/TeamRoom.jsx";
 import { applyTheme, getStoredTheme } from "./utils/theme";
 
 // Applied before the first render so there's no flash of the wrong theme.
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/room" element={<Room />} />
         <Route path="/qroom" element={<QuestionRoom />} />
         <Route path="/waroom" element={<WhoAnsweredRoom />} />
+        <Route path="/teamroom" element={<TeamRoom />} />
       </Routes>
     </Router>
 )

@@ -3,9 +3,37 @@ import './home.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { GAME_MODES } from '../constants/gameModes';
 import { LANGUAGES } from '../constants/languages';
-import { randomInt, makeGameId } from '../utils/random';
+import { randomInt, makeGameId, shuffle, sampleUnique } from '../utils/random';
 import { THEMES, applyTheme, getStoredTheme } from '../utils/theme';
 
+
+// Splits players into teams of 2 for Describe & Guess. An odd leftover
+// player is handled per `strategy`: 'teamOfThree' folds them into the last
+// pair as a third member; 'duplicatePlayer' instead adds them onto two
+// different existing teams, so they get turns with two different partners
+// rather than forming a new team of their own.
+function generateTeams(names, strategy) {
+    const shuffled = shuffle(names);
+    if (shuffled.length % 2 === 0) {
+        const teams = [];
+        for (let i = 0; i < shuffled.length; i += 2) teams.push([shuffled[i], shuffled[i + 1]]);
+        return teams;
+    }
+
+    const leftover = shuffled[shuffled.length - 1];
+    const pairable = shuffled.slice(0, -1);
+    const teams = [];
+    for (let i = 0; i < pairable.length; i += 2) teams.push([pairable[i], pairable[i + 1]]);
+
+    if (strategy === 'duplicatePlayer' && teams.length >= 2) {
+        const [firstIdx, secondIdx] = sampleUnique(teams.map((_, i) => i), 2);
+        teams[firstIdx] = [...teams[firstIdx], leftover];
+        teams[secondIdx] = [...teams[secondIdx], leftover];
+    } else {
+        teams[teams.length - 1] = [...teams[teams.length - 1], leftover];
+    }
+    return teams;
+}
 
 export default function Home() {
     const location = useLocation();
@@ -28,7 +56,12 @@ export default function Home() {
     const [enableSpecialRoles, setEnableSpecialRoles] = React.useState(false);
     const [showRolesInfo, setShowRolesInfo] = React.useState(false);
     const [totalRounds, setTotalRounds] = React.useState(5);
-    
+
+    // Describe & Guess configuration
+    const [timerDuration, setTimerDuration] = React.useState(60);
+    const [oddTeamStrategy, setOddTeamStrategy] = React.useState('teamOfThree');
+    const [teams, setTeams] = React.useState([]);
+
     // Individual role selection
     const [enableSeraphis, setEnableSeraphis] = React.useState(false);
     const [enableSpectra, setEnableSpectra] = React.useState(false);
@@ -54,6 +87,9 @@ export default function Home() {
             setEnableCensor(location.state.enableCensor ?? false);
             setEnableInquisitor(location.state.enableInquisitor ?? false);
             setTotalRounds(location.state.totalRounds || 5);
+            setTimerDuration(location.state.timerDuration || 60);
+            setOddTeamStrategy(location.state.oddTeamStrategy || 'teamOfThree');
+            setTeams(location.state.teams || []);
         }
     }, [location]);
 
@@ -85,6 +121,9 @@ export default function Home() {
         setEnableCensor(false);
         setEnableInquisitor(false);
         setTotalRounds(5);
+        setTimerDuration(60);
+        setOddTeamStrategy('teamOfThree');
+        setTeams([]);
     }
     
     // Auto-disable Censor and Inquisitor when Questions mode is active
@@ -108,6 +147,18 @@ export default function Home() {
             setImposterCount(maxImposters);
         }
     }, [playerNames.length, maxImposters, imposterCount]);
+
+    // Auto-generate teams for Describe & Guess whenever the player list or
+    // odd-count strategy changes, so the preview is never stale/empty.
+    React.useEffect(() => {
+        if (selectedMode === GAME_MODES.DESCRIBE_GUESS && playerNames.length >= 3) {
+            setTeams(generateTeams(playerNames, oddTeamStrategy));
+        }
+    }, [selectedMode, playerNames, oddTeamStrategy]);
+
+    function handleShuffleTeams() {
+        setTeams(generateTeams(playerNames, oddTeamStrategy));
+    }
 
     function handleAddPlayer() {
         if (inputName.trim() && !playerNames.includes(inputName.trim())) {
@@ -144,6 +195,9 @@ export default function Home() {
             language: language,
             enableSpecialRoles: enableSpecialRoles,
             totalRounds: totalRounds,
+            timerDuration: timerDuration,
+            teams: teams,
+            oddTeamStrategy: oddTeamStrategy,
             selectedRoles: {
                 seraphis: enableSeraphis,
                 spectra: enableSpectra,
@@ -158,6 +212,8 @@ export default function Home() {
             navigate('/qroom', { state: gameState });
         } else if (selectedMode === GAME_MODES.WHO_ANSWERED) {
             navigate('/waroom', { state: gameState });
+        } else if (selectedMode === GAME_MODES.DESCRIBE_GUESS) {
+            navigate('/teamroom', { state: gameState });
         }
     }
 
@@ -220,6 +276,10 @@ export default function Home() {
             <div className="mode-card" onClick={() => handleModeClick(GAME_MODES.WHO_ANSWERED)}>
               <h3 className="mode-card-title">Who Answered?</h3>
               <p className="mode-card-description">Everyone answers the same question. Guess who said it!</p>
+            </div>
+            <div className="mode-card" onClick={() => handleModeClick(GAME_MODES.DESCRIBE_GUESS)}>
+              <h3 className="mode-card-title">Describe & Guess</h3>
+              <p className="mode-card-description">Teams take turns describing words against the clock!</p>
             </div>
           </div>
         </div>
@@ -284,8 +344,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Rounds Configuration Section - Only for mode 2 (Who Answered) */}
-          {playerNames.length >= 3 && selectedMode === GAME_MODES.WHO_ANSWERED && (
+          {/* Rounds Configuration Section - Who Answered and Describe & Guess */}
+          {playerNames.length >= 3 && (selectedMode === GAME_MODES.WHO_ANSWERED || selectedMode === GAME_MODES.DESCRIBE_GUESS) && (
             <div className="config-section">
               <h3 className="config-section-title">Game Settings</h3>
               
@@ -312,8 +372,79 @@ export default function Home() {
             </div>
           )}
 
+          {/* Timer Configuration - Only for Describe & Guess */}
+          {playerNames.length >= 3 && selectedMode === GAME_MODES.DESCRIBE_GUESS && (
+            <div className="config-section">
+              <h3 className="config-section-title">Timer</h3>
+              <div className="imposter-controls">
+                <div className="imposter-slider-container">
+                  <label className="config-label">
+                    Seconds per turn:
+                    <span className="imposter-value">{timerDuration}</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="30"
+                    max="120"
+                    step="5"
+                    value={timerDuration}
+                    onChange={(e) => setTimerDuration(parseInt(e.target.value))}
+                    className="imposter-slider"
+                  />
+                  <div className="slider-labels">
+                    <span>30</span>
+                    <span>120</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Team Formation - Only for Describe & Guess */}
+          {playerNames.length >= 3 && selectedMode === GAME_MODES.DESCRIBE_GUESS && (
+            <div className="config-section">
+              <h3 className="config-section-title">Teams</h3>
+
+              {playerNames.length % 2 !== 0 && (
+                <div className="randomize-option">
+                  <p className="roles-selection-label">
+                    Odd number of players (an even count is recommended) — how should the extra player be handled?
+                  </p>
+                  <div className="language-toggle">
+                    <button
+                      type="button"
+                      className={`language-option ${oddTeamStrategy === 'teamOfThree' ? 'active' : ''}`}
+                      onClick={() => setOddTeamStrategy('teamOfThree')}
+                    >
+                      One team of 3
+                    </button>
+                    <button
+                      type="button"
+                      className={`language-option ${oddTeamStrategy === 'duplicatePlayer' ? 'active' : ''}`}
+                      onClick={() => setOddTeamStrategy('duplicatePlayer')}
+                    >
+                      Player joins two teams
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="player-list">
+                {teams.map((team, index) => (
+                  <div key={index} className="player-item-card">
+                    <span className="player-item-name">Team {index + 1}: {team.join(' & ')}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button type="button" className="info-button" onClick={handleShuffleTeams}>
+                Shuffle Teams
+              </button>
+            </div>
+          )}
+
           {/* Imposter Configuration Section - Only for modes 0 and 1 */}
-          {playerNames.length >= 3 && selectedMode !== GAME_MODES.WHO_ANSWERED && (
+          {playerNames.length >= 3 && selectedMode !== GAME_MODES.WHO_ANSWERED && selectedMode !== GAME_MODES.DESCRIBE_GUESS && (
             <div className="config-section">
               <h3 className="config-section-title">Imposters</h3>
               
@@ -417,7 +548,7 @@ export default function Home() {
           )}
 
           {/* Special Roles Configuration - Only for modes 0 and 1 */}
-          {playerNames.length >= 3 && selectedMode !== GAME_MODES.WHO_ANSWERED && (
+          {playerNames.length >= 3 && selectedMode !== GAME_MODES.WHO_ANSWERED && selectedMode !== GAME_MODES.DESCRIBE_GUESS && (
             <div className="config-section">
               <h3 className="config-section-title">Special Roles</h3>
               
