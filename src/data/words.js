@@ -88,14 +88,22 @@ const words = [
                 "Bull", "Calf", "Dog", "Cat", "Kitten", "Puppy", "Rooster", "Chicken", "Hen", "Chick",
                 "Duck", "Goose", "Swan", "Flamingo", "Pelican", "Stork", "Crane", "Heron", "Ibis", "Egret",
                 "Hawk", "Falcon", "Kite", "Vulture", "Condor", "Raven", "Crow", "Magpie", "Jay", "Starling",
-                "Sparrow", "Finch", "Canary", "Robin", "Bluebird", "Cardinal", "Woodpecker", "Hummingbird", "Kingfisher", "Albatross"]
+                "Sparrow", "Finch", "Canary", "Robin", "Bluebird", "Cardinal", "Woodpecker", "Hummingbird", "Kingfisher", "Albatross",
+                "Salmon", "Trout", "Tuna", "Eel", "Pufferfish", "Manta Ray", "Hammerhead Shark", "Great White Shark",
+                "Bee", "Wasp", "Ant", "Mosquito", "Cricket", "Grasshopper", "Cockroach", "Ladybug", "Dragonfly", "Firefly",
+                "Spider", "Scorpion", "Tarantula", "Black Widow",
+                "Toad", "Salamander", "Axolotl",
+                "Crab", "Lobster", "Shrimp", "Barnacle"]
     },
     {
         id: 6,
         family: "Geographical Places",
         words: ["Paris", "New York", "London", "Tokyo", "Sydney", "Rome", "Dubai", "Moscow", "Berlin", "Toronto",
                 "Los Angeles", "Hong Kong", "Singapore", "Barcelona", "Amsterdam", "Venice", "Bangkok", "Rio de Janeiro", "Cairo", "Istanbul",
-                "Mumbai", "Shanghai", "Mexico City", "Seoul", "Athens", "Lisbon", "Vienna", "Chicago", "San Francisco", "Prague"]
+                "Mumbai", "Shanghai", "Mexico City", "Seoul", "Athens", "Lisbon", "Vienna", "Chicago", "San Francisco", "Prague",
+                "Madrid", "Beijing", "Dublin", "Havana", "Cape Town", "Jerusalem", "Kyoto", "Buenos Aires", "Munich", "Florence",
+                "Copenhagen", "Stockholm", "Brussels", "Marrakesh", "Budapest",
+                "Eiffel Tower", "Great Wall of China", "Grand Canyon", "Niagara Falls", "Mount Everest", "Sahara Desert", "Machu Picchu", "Taj Mahal", "Statue of Liberty", "Colosseum"]
     },
     {
         id: 7,
@@ -116,7 +124,10 @@ const words = [
         family: "Jobs & Professions",
         words: ["Doctor", "Engineer", "Teacher", "Lawyer", "Police Officer", "Firefighter", "Chef", "Artist", "Actor", "Singer",
                 "Scientist", "Pilot", "Astronaut", "Nurse", "Architect", "Photographer", "Journalist", "Dentist", "Pharmacist", "Carpenter",
-                "Electrician", "Mechanic", "Veterinarian", "Fashion Designer", "Interior Designer", "Accountant", "Banker", "Psychologist", "Athlete", "Software Developer"]
+                "Electrician", "Mechanic", "Veterinarian", "Fashion Designer", "Interior Designer", "Accountant", "Banker", "Psychologist", "Athlete", "Software Developer",
+                "Baker", "Butcher", "Cook", "Hairdresser", "Plumber", "Mason", "Painter", "Welder", "Blacksmith", "Locksmith",
+                "Gardener", "Judge", "Librarian", "Publisher", "Sailor", "Tailor", "Hunter", "Fisherman", "Potter", "Weaver",
+                "Diplomat", "Notary", "Model", "Bartender", "Waiter"]
     },
     {
         id: 10,
@@ -175,6 +186,60 @@ const words = [
         id: 13,
         family: "Friends",
         words: ["Abdul", "alfred", "yusuf", "suliman", "gabi", "wilson", "Marco"]
+    },
+    {
+        id: 14,
+        family: "Video Games",
+        words: [
+                "The Legend of Zelda: Ocarina of Time", "The Last of Us", "The Legend of Zelda: Breath of the Wild", "Grand Theft Auto V", "The Witcher 3: Wild Hunt", "Half-Life 2", "The Elder Scrolls V: Skyrim", "Chrono Trigger", "Super Mario 64", "Portal 2",
+                "Resident Evil 4", "Super Mario World", "The Legend of Zelda: A Link to the Past", "Final Fantasy VII", "Mass Effect 2", "Metal Gear Solid", "Super Mario Bros. 3", "BioShock", "Red Dead Redemption 2", "Tetris",
+                "Minecraft", "Red Dead Redemption", "God of War (2018)", "Shadow of the Colossus", "Super Metroid", "Halo: Combat Evolved", "Metroid Prime", "Uncharted 2: Among Thieves", "Bloodborne", "Dark Souls",
+                "Pokémon Red and Blue", "Doom", "Street Fighter II", "Persona 5", "Metal Gear Solid 3: Snake Eater", "The Legend of Zelda: The Wind Waker", "GoldenEye 007", "Super Mario Odyssey", "Castlevania: Symphony of the Night", "Elden Ring",
+                "Batman: Arkham City", "Grand Theft Auto: San Andreas", "World of Warcraft", "Star Wars: Knights of the Old Republic", "Super Mario Galaxy", "Disco Elysium", "Portal", "Super Mario Bros.", "Call of Duty 4: Modern Warfare", "Silent Hill 2",
+                "Final Fantasy VI", "The Legend of Zelda: Majora's Mask", "Undertale", "Fallout 3", "Hades", "Overwatch", "Half-Life", "Journey", "Super Smash Bros. Melee", "Super Smash Bros. Ultimate",
+                "Deus Ex", "Super Mario Kart", "The Legend of Zelda: Tears of the Kingdom", "Super Mario Galaxy 2", "Starcraft", "Uncharted 4: A Thief's End", "EarthBound", "Fallout: New Vegas", "Grand Theft Auto IV", "Diablo II",
+                "Grand Theft Auto III", "Metal Gear Solid 3: Subsistence", "Nier: Automata", "Kingdom Hearts II", "Grand Theft Auto: Vice City", "Ms. Pac-Man", "The Last of Us Part II", "The Legend of Zelda", "Halo 3", "Assassin's Creed II",
+                "Halo 2", "Metal Gear Solid 4: Guns of the Patriots", "God of War Ragnarök", "Pokémon Gold and Silver", "Soulcalibur", "The Legend of Zelda: Twilight Princess", "BioShock Infinite", "Baldur's Gate 3", "Hollow Knight", "Tony Hawk's Pro Skater 2",
+                "Final Fantasy X", "Metal Gear Solid V: The Phantom Pain", "Celeste", "Outer Wilds", "Half-Life: Alyx", "The Sims", "Pac-Man", "Final Fantasy IX", "Baldur's Gate II: Shadows of Amn", "Planescape Torment",
+                "Divinity: Original Sin II", "Mass Effect", "Dishonored 2", "Okami", "Batman: Arkham Asylum", "Fortnite Battle Royale", "Sonic the Hedgehog", "Space Invaders", "The Elder Scrolls IV: Oblivion", "Inside",
+                "Spider-Man", "Left 4 Dead 2", "Kingdom Hearts", "Animal Crossing: New Horizons", "Donkey Kong", "Tekken 3", "The Secret of Monkey Island", "Resident Evil 2 (2019)", "Mario Kart 8 Deluxe", "XenoBlade Chronicles",
+                "Fallout 2", "Resident Evil 2", "Stardew Valley", "Borderlands 2", "Ghost of Tsushima", "Paper Mario: The Thousand-Year Door", "Wii Sports", "Tomb Raider", "Horizon Zero Dawn", "Resident Evil",
+                "Starcraft II: Wings of Liberty", "Mortal Kombat", "Metal Gear Solid 2: Sons of Liberty", "Return of the Obra Dinn", "Dark Souls III", "Final Fantasy XIV", "Sekiro: Shadows Die Twice", "Counter-Strike", "Civilization IV", "Deathloop",
+                "Super Smash Bros. Brawl", "The Witness", "Donkey Kong Country", "Doom (2016)", "Titanfall 2", "Rocket League", "Shenmue", "Dragon Age: Origins", "Sonic the Hedgehog 2", "League of Legends",
+                "Pokémon Yellow", "Monkey Island 2: LeChuck's Revenge", "Resident Evil 4 (2023)", "Call of Duty: Modern Warfare 2", "System Shock 2", "Dragon Warrior III", "Dragon Age: Inquisition", "Yakuza 0", "XCOM 2", "Mega Man 2",
+                "Perfect Dark", "Max Payne", "God of War", "Persona 4: Golden", "Suikoden II", "Animal Crossing: New Leaf", "Grim Fandango", "Super Mario RPG: Legend of the Seven Stars", "The Elder Scrolls III: Morrowind", "Civilization",
+                "Dishonored", "Fire Emblem Awakening", "God of War II", "Apex Legends", "Animal Crossing", "Pitfall!", "Asteroids", "Spelunky", "Terraria", "Kentucky Route Zero",
+                "Team Fortress 2", "The Walking Dead", "Mother 3", "Gran Turismo", "Civilization II", "SimCity", "Age of Empires II: The Age of Kings", "Mass Effect 3", "Warcraft III: Reign of Chaos", "Halo: Reach",
+                "Control", "Fez", "Life Is Strange", "Tom Clancy's Splinter Cell: Chaos Theory", "What Remains of Edith Finch", "Destiny", "Uncharted 3: Drake's Deception", "Gears of War", "Spelunky 2", "Bayonetta 2",
+                "Tony Hawk's Pro Skater 3", "Advance Wars", "Quake", "Super Mario World 2: Yoshi's Island", "The Legend of Zelda: Skyward Sword", "Forza Horizon 5", "Microsoft Flight Simulator", "Call of Duty: Black Ops", "Prince of Persia", "Star Wars: Battlefront II",
+                "Forza Horizon 4", "The Oregon Trail", "Gran Turismo 3: A-Spec", "Into the Breach", "Pokémon HeartGold and SoulSilver", "Splatoon", "Final Fantasy Tactics", "Pong", "Dragon Quest XI", "Dwarf Fortress",
+                "Super Smash Bros. for Wii U", "Among Us", "Super Smash Bros.", "Pokémon FireRed and LeafGreen", "Cuphead", "Civilization V", "Adventure", "ICO", "Fire Emblem: Three Houses", "Kerbal Space Program",
+                "Mario Kart Wii", "Mother", "Mario Kart 8", "Fallout 4", "God of War III", "Psychonauts", "Monster Hunter: World", "The Sims 4", "Pac-Man Championship Edition DX", "RoboCop",
+                "Excitebike", "Ori and the Will of the Wisps", "Dead Space", "The Sims 3", "Persona 3", "Alien: Isolation", "Pokémon Black and White", "Banjo-Kazooie", "Slay the Spire", "DOTA 2",
+                "The Legend of Zelda: Link's Awakening", "Burnout 3: Takedown", "Monster Hunter 4", "Rainbow Six Siege", "FTL: Faster Than Light", "Assassin's Creed IV: Black Flag", "Final Fantasy III", "Mario Kart 64", "Dragon Quest V: Hand of the Heavenly Bride", "Xenogears",
+                "XCOM: Enemy Unknown", "Street Fighter 6", "Crusader Kings III", "Devil May Cry", "Rock Band 3", "Dance Dance Revolution", "Her Story", "Fallout", "Tony Hawk's Pro Skater", "Doom Eternal",
+                "P.T.", "Bayonetta", "The Sims 2", "Ori and the Blind Forest", "SimCity 2000", "Dead Cells", "Dragon Quest VIII: Journey of the Cursed King", "Myst", "Bejeweled", "Secret of Mana",
+                "Total War: Three Kingdoms", "NBA Jam", "Rise of the Tomb Raider", "Unreal Tournament", "Jade Empire", "Far Cry 3", "Half-Life 2: Episode Two", "Hotline Miami", "Crysis", "Pokémon Emerald",
+                "Detroit: Become Human", "The World Ends with You", "Streets of Rage 2", "The Legend of Zelda: Oracle of Ages", "SNK vs. Capcom: The Match of the Millennium", "Magical Tetris Challenge", "Super Mario Bros. Deluxe", "Mario Golf", "Pentiment", "The Legend of Zelda: Oracle of Seasons",
+                "LittleBigPlanet", "Gran Turismo 2", "Spacewar", "Far Cry 5", "Gone Home", "Pole Position", "Dragon Quest IV", "Gears of War 2", "Fable", "Pokémon Diamond and Pearl",
+                "Final Fantasy VIII", "NFL 2K1", "Elite", "Subnautica", "Quake III Arena", "Day of the Tentacle", "BattleTech", "Mortal Kombat II", "Conker's Bad Fur Day", "Danganronpa 2: Goodbye Despair",
+                "Braid", "Counter-Strike: Global Offensive", "Tales of Symphonia", "Metal Gear Solid: Peace Walker", "Mafia: The City of Lost Heaven", "Shenmue II", "Tecmo Super Bowl", "Spider-Man: Miles Morales", "The House in Fata Morgana", "Zork",
+                "Super Mario Sunshine", "Phoenix Wright: Ace Attorney", "Dragon Quest X", "Company of Heroes", "Guitar Hero", "The Legend of Zelda: A Link Between Worlds", "Katamari Damacy", "Splatoon 2", "Crash Bandicoot", "Final Fantasy V",
+                "Final Fantasy XV", "Forza Horizon 3", "Max Payne 2: The Fall of Max Payne", "Resident Evil 7", "Dead Space 2", "Astro Bot Rescue Mission", "Indiana Jones and the Fate of Atlantis", "Kirby Super Star", "Cities: Skylines", "Star Wars Jedi: Survivor",
+                "Divinity: Original Sin", "Puyo Puyo", "Batman: Arkham Knight", "Pokémon Sword and Shield", "Super Mario 3D World", "Command & Conquer", "It Takes Two", "Pyre", "Superman", "Monster Hunter Freedom Unite",
+                "Lode Runner", "Hitman 2", "Super Meat Boy", "Guild Wars 2", "Operation Flashpoint: Cold War Crisis", "Immortality", "Tony Hawk's Pro Skater 4", "Crusader Kings II", "Eternal Darkness: Sanity's Requiem", "Ultima Online",
+                "Mega Man 3", "Thief II: The Metal Age", "Limbo", "Final Fantasy", "Demon's Souls", "Pokémon Black 2/White 2", "Super Hexagon", "Call of Duty: Black Ops II", "Madden NFL 2003", "Super Mario All-Stars",
+                "Gauntlet", "Dark Souls II", "Galaga", "King's Quest I", "Colossal Cave Adventure", "Halo 4", "Runescape", "Golden Sun: The Lost Age", "Beyond Good & Evil", "Vagrant Story",
+                "Teenage Mutant Ninja Turtles IV: Turtles in Time", "Plants vs. Zombies", "Final Fantasy IV", "Fable II", "Chrono Cross", "Lemmings", "Warframe", "Prince of Persia: The Sands of Time", "Euro Truck Simulator 2", "Rez",
+                "Final Fantasy XI", "Hellblade: Senua's Sacrifice", "Pokémon X and Y", "Metro Exodus", "Tomb Raider II", "Out Run", "Fall Guys", "Danganronpa: Trigger Happy Havoc", "Tomb Raider (2013)", "Battlefield 1942",
+                "The Orange Box", "Solitaire", "Barbie Fashion Designer", "Centipede", "John Madden Football", "The Ascent", "13 Sentinels: Aegis Rim", "R-Type", "Golden Sun", "The Binding of Isaac: Rebirth",
+                "Overcooked", "XenoBlade Chronicles 2", "Valheim", "Mega Man X", "Mortal Kombat X", "They Are Billions", "Double Dragon", "Ratchet & Clank: Up Your Arsenal", "Tetris Effect", "Danganronpa V3: Killing Harmony",
+                "Catacomb 3-D", "Green Hell", "Hitman", "Rogue", "Battlefield 1", "UFO: Enemy Unknown", "Sakura Wars: So Long, My Love", "New Super Mario Bros.", "Hearthstone", "X-COM 2: War of the Chosen",
+                "80 Days", "Jet Set Radio", "Danganronpa 1 & 2 Reload", "Alone in the Dark", "Valiant Hearts: The Great War", "NHL 94", "Doki Doki Literature Club!", "Final Fantasy XII", "The Last Guardian", "Hatsune Miku: Project DIVA f",
+                "Dragon Warrior", "Super Mega Baseball 3", "Frostpunk", "Star Wars Jedi: Fallen Order", "Castle Crashers", "Far Cry", "Driver", "Civilization VI", "Sunless Skies", "Soulcalibur II",
+                "Eve Online", "Doom II: Hell on Earth", "Elite Beat Agents", "Street Fighter V", "Bastion", "Ultra Street Fighter IV", "Devil May Cry 3: Dante's Awakening", "Firewatch", "Assassin's Creed Odyssey", "To the Moon",
+                "Heroes of Might & Magic III", "Genshin Impact"
+            ]
     }
 ];
 
