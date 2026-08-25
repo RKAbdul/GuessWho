@@ -1,4 +1,4 @@
-const wordsData = [
+const words = [
     {
         id: 1,
         family: "Famous & Historic Characters",
@@ -182,4 +182,4 @@ const wordsData = [
    } 
 ];
 
-export default wordsData;
+export default words;

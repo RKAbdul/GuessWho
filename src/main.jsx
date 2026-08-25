@@ -2,11 +2,14 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/home.jsx";
-import Room from "./pages/room.jsx";
-import QuestionRoom from "./pages/questionroom.jsx";
-import WhoAnsweredRoom from "./pages/whoansweredroom.jsx";
+import Home from "./pages/Home.jsx";
+import Room from "./pages/Room.jsx";
+import QuestionRoom from "./pages/QuestionRoom.jsx";
+import WhoAnsweredRoom from "./pages/WhoAnsweredRoom.jsx";
+import { applyTheme, getStoredTheme } from "./utils/theme";
 
+// Applied before the first render so there's no flash of the wrong theme.
+applyTheme(getStoredTheme());
 
 createRoot(document.getElementById('root')).render(
     <Router basename='/GuessWho'>

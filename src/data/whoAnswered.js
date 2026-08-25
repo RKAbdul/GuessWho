@@ -1,4 +1,4 @@
-const whoAnsweredData = [
+const whoAnswered = [
   "What's the most embarrassing song on your playlist?",
   "If you could only eat one food for the rest of your life, what would it be?",
   "What's a secret talent nobody here knows about?",
@@ -122,4 +122,4 @@ const whoAnsweredData = [
   "What's the worst thing you've said behind someone's back?"
 ];
 
-export default whoAnsweredData;
+export default whoAnswered;

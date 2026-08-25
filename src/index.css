@@ -1,6 +1,34 @@
+:root {
+  --color-primary: #ff6b6b;
+  --color-primary-rgb: 255, 107, 107;
+  --color-primary-light: #ff8787;
+  --color-primary-light-rgb: 255, 135, 135;
+  --color-primary-lighter: #ffa3a3;
+  --color-primary-pale: #ffcccc;
+  --color-primary-dark: #a83c3c;
+  --color-primary-darker: #6b2424;
+}
+
+[data-theme="yellow"] {
+  --color-primary: #ffc93c;
+  --color-primary-rgb: 255, 201, 60;
+  --color-primary-light: #ffd966;
+  --color-primary-light-rgb: 255, 217, 102;
+  --color-primary-lighter: #ffe699;
+  --color-primary-pale: #fff2b8;
+  --color-primary-dark: #b8860b;
+  --color-primary-darker: #7a5c00;
+}
+
+html {
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
   background-color: #1b1b1b;
+  overflow-x: hidden;
+  max-width: 100vw;
 }

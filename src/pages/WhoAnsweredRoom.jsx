@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import "./room.css";
-import whoAnsweredData from "../assets/whoAnsweredData";
+import "./rooms.css";
+import whoAnswered from "../data/whoAnswered";
+import whoAnsweredEs from "../data/whoAnsweredEs";
+import { pickOne } from "../utils/random";
+import { LANGUAGES } from "../constants/languages";
 
 export default function WhoAnsweredRoom() {
     const location = useLocation();
@@ -10,6 +13,8 @@ export default function WhoAnsweredRoom() {
     const players = location.state?.players || [];
     const mode = location.state?.mode;
     const totalRounds = location.state?.totalRounds || 5;
+    const language = location.state?.language ?? LANGUAGES.SPANISH;
+    const whoAnsweredData = language === LANGUAGES.ENGLISH ? whoAnswered : whoAnsweredEs;
 
     const [currentQuestion, setCurrentQuestion] = useState("");
     const [answers, setAnswers] = useState({});
@@ -62,19 +67,19 @@ export default function WhoAnsweredRoom() {
         
         // Select random question that hasn't been used
         let availableQuestions = whoAnsweredData.filter(q => !usedQuestions.includes(q));
-        
+
         // If all questions used, reset the pool
         if (availableQuestions.length === 0) {
             availableQuestions = [...whoAnsweredData];
             setUsedQuestions([]);
         }
         
-        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+        const randomQuestion = pickOne(availableQuestions);
         setCurrentQuestion(randomQuestion);
         setUsedQuestions([...usedQuestions, randomQuestion]);
-        
+
         // Select random player whose answer will be shown
-        const randomAnswerer = players[Math.floor(Math.random() * players.length)];
+        const randomAnswerer = pickOne(players);
         setSelectedAnswerer(randomAnswerer);
     }
 
@@ -94,18 +99,6 @@ export default function WhoAnsweredRoom() {
         }
 
         event.target.reset();
-    }
-
-    function handleNextPlayer() {
-        if (currentPlayer < players.length - 1) {
-            setCurrentPlayer(currentPlayer + 1);
-            setIsFlipped(false);
-        } else {
-            // All players have answered, move to guessing phase
-            setGamePhase(1);
-            setDisplayedAnswer(answers[selectedAnswerer] || "No answer provided");
-            setIsFlipped(false);
-        }
     }
 
     function handleVote(votedPlayer) {
@@ -152,26 +145,17 @@ export default function WhoAnsweredRoom() {
          *   Result: Alice +1 (fooled everyone!), others 0
          */
         
-        console.log('=== SCORING ROUND ===');
-        console.log('Selected Answerer:', selectedAnswerer);
-        console.log('All votes:', finalVotes);
-        console.log('Votes for answerer:', votesForAnswerer);
-        
         // RULE 1: If NO ONE voted for the answerer, they get a point for fooling everyone
         if (votesForAnswerer === 0) {
             newScores[selectedAnswerer] = (newScores[selectedAnswerer] || 0) + 1;
-            console.log(`${selectedAnswerer} fooled everyone! +1 point`);
         }
-        
+
         // RULE 2: Players who guessed correctly get 1 point each
         Object.entries(finalVotes).forEach(([voter, guess]) => {
             if (guess === selectedAnswerer) {
                 newScores[voter] = (newScores[voter] || 0) + 1;
-                console.log(`${voter} guessed correctly! +1 point`);
             }
         });
-
-        console.log('Updated scores:', newScores);
 
         setScores(newScores);
         setGamePhase(2);
@@ -193,17 +177,6 @@ export default function WhoAnsweredRoom() {
         initializeGame();
     }
 
-    function handleBackToMenu() {
-        navigate('/', {
-            state: {
-                returnToConfig: true,
-                mode: mode,
-                players: players,
-                totalRounds: totalRounds
-            }
-        });
-    }
-
     const sortedPlayers = Object.entries(scores)
         .sort(([, a], [, b]) => b - a)
         .map(([player]) => player);
@@ -214,7 +187,8 @@ export default function WhoAnsweredRoom() {
                 returnToConfig: true,
                 mode: mode,
                 players: players,
-                totalRounds: totalRounds
+                totalRounds: totalRounds,
+                language: language
             }
         });
     }

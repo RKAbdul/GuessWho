@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import "./room.css";
-import wordsData from "../assets/wordsData";
-import rolesData from "../assets/rolesData";
+import "./rooms.css";
+import words from "../data/words";
+import wordsEs from "../data/wordsEs";
+import roles from "../data/roles";
+import { shuffle, sampleUnique, pickOne } from "../utils/random";
+import { LANGUAGES } from "../constants/languages";
 
 export default function Room() {
     const location = useLocation();
@@ -15,6 +18,9 @@ export default function Room() {
     const showImposterCount = location.state?.showImposterCount ?? false;
     const randomizeImposters = location.state?.randomizeImposters ?? false;
     const revealImposterStatus = location.state?.revealImposterStatus ?? false;
+    const showWordCategory = location.state?.showWordCategory ?? true;
+    const language = location.state?.language ?? LANGUAGES.SPANISH;
+    const wordsData = language === LANGUAGES.ENGLISH ? words : wordsEs;
     const enableSpecialRoles = location.state?.enableSpecialRoles ?? false;
     const selectedRoles = location.state?.selectedRoles || {
         seraphis: false,
@@ -53,33 +59,25 @@ export default function Room() {
     }, []);
 
     function initializeGame() {
-        let shuffled = [...players].sort(() => Math.random() - 0.5);
+        let shuffled = shuffle(players);
         setShuffledPlayers(shuffled);
 
-        const randomFamily = wordsData[Math.floor(Math.random() * wordsData.length)];
+        const randomFamily = pickOne(wordsData);
         setWordFamily(randomFamily.family);
 
-        let wordChoices = [...randomFamily.words].sort(() => Math.random() - 0.5);
-        setMainWord(wordChoices[0]);
-        setImposterWord(wordChoices[1]);
+        const [chosenMainWord, chosenImposterWord] = sampleUnique(randomFamily.words, 2);
+        setMainWord(chosenMainWord);
+        setImposterWord(chosenImposterWord);
 
         const assignedWords = {};
-        shuffled.forEach((player) => (assignedWords[player] = wordChoices[0]));
+        shuffled.forEach((player) => (assignedWords[player] = chosenMainWord));
 
         // Pick imposters based on imposterCount
-        const imposterIndices = [];
-        while (imposterIndices.length < imposterCount) {
-            const randomIndex = Math.floor(Math.random() * shuffled.length);
-            if (!imposterIndices.includes(randomIndex)) {
-                imposterIndices.push(randomIndex);
-            }
-        }
-
-        const selectedImposters = imposterIndices.map(i => shuffled[i]);
+        const selectedImposters = sampleUnique(shuffled, imposterCount);
         setImposters(selectedImposters);
-        
+
         selectedImposters.forEach(imposter => {
-            assignedWords[imposter] = wordChoices[1];
+            assignedWords[imposter] = chosenImposterWord;
         });
 
         setWordAssignments(assignedWords);
@@ -87,7 +85,7 @@ export default function Room() {
         // Assign special roles if enabled
         if (enableSpecialRoles && shuffled.length >= 4) {
             // Filter roles based on what was selected in configuration
-            const enabledRoles = rolesData.filter(role => {
+            const enabledRoles = roles.filter(role => {
                 if (role.id === 'seraphis') return selectedRoles.seraphis;
                 if (role.id === 'spectra') return selectedRoles.spectra;
                 if (role.id === 'censor') return selectedRoles.censor;
@@ -96,36 +94,34 @@ export default function Room() {
             });
 
             if (enabledRoles.length > 0) {
-                const roles = {};
-                const regularPlayers = shuffled.filter(p => !selectedImposters.includes(p));
-                
+                const assignedRoles = {};
+
                 // Randomly select players to get roles (up to number of enabled roles)
                 const numRolesToAssign = Math.min(enabledRoles.length, Math.max(2, Math.floor(shuffled.length / 2)));
-                const playersToAssignRoles = [...shuffled].sort(() => Math.random() - 0.5).slice(0, numRolesToAssign);
-                
+                const playersToAssignRoles = sampleUnique(shuffled, numRolesToAssign);
+
                 playersToAssignRoles.forEach(player => {
                     const isImposter = selectedImposters.includes(player);
                     let eligibleRoles;
-                    
+
                     if (isImposter) {
                         // Imposters can only get Censor or Inquisitor
-                        eligibleRoles = enabledRoles.filter(r => 
-                            r.canBeImposter && !Object.values(roles).some(assigned => assigned.id === r.id)
+                        eligibleRoles = enabledRoles.filter(r =>
+                            r.canBeImposter && !Object.values(assignedRoles).some(assigned => assigned.id === r.id)
                         );
                     } else {
                         // Regular players can get any enabled role
-                        eligibleRoles = enabledRoles.filter(r => 
-                            !Object.values(roles).some(assigned => assigned.id === r.id)
+                        eligibleRoles = enabledRoles.filter(r =>
+                            !Object.values(assignedRoles).some(assigned => assigned.id === r.id)
                         );
                     }
-                    
+
                     if (eligibleRoles.length > 0) {
-                        const randomRole = eligibleRoles[Math.floor(Math.random() * eligibleRoles.length)];
-                        roles[player] = randomRole;
+                        assignedRoles[player] = pickOne(eligibleRoles);
                     }
                 });
-                
-                setPlayerRoles(roles);
+
+                setPlayerRoles(assignedRoles);
             } else {
                 setPlayerRoles({});
             }
@@ -168,29 +164,9 @@ export default function Room() {
         navigate('/');
     }
 
-    function handleChangeModeClick() {
-        navigate('/', { 
-            state: { 
-                returnToConfig: true,
-                mode: mode,
-                players: players,
-                imposterCount: imposterCount,
-                randomizeImposters: randomizeImposters,
-                revealElimination: revealElimination,
-                showImposterCount: showImposterCount,
-                revealImposterStatus: revealImposterStatus,
-                enableSpecialRoles: enableSpecialRoles,
-                enableSeraphis: selectedRoles.seraphis,
-                enableSpectra: selectedRoles.spectra,
-                enableCensor: selectedRoles.censor,
-                enableInquisitor: selectedRoles.inquisitor
-            } 
-        });
-    }
-
     function handleBackToConfig() {
-        navigate('/', { 
-            state: { 
+        navigate('/', {
+            state: {
                 returnToConfig: true,
                 mode: mode,
                 players: players,
@@ -199,18 +175,18 @@ export default function Room() {
                 revealElimination: revealElimination,
                 showImposterCount: showImposterCount,
                 revealImposterStatus: revealImposterStatus,
+                showWordCategory: showWordCategory,
+                language: language,
                 enableSpecialRoles: enableSpecialRoles,
                 enableSeraphis: selectedRoles.seraphis,
                 enableSpectra: selectedRoles.spectra,
                 enableCensor: selectedRoles.censor,
                 enableInquisitor: selectedRoles.inquisitor
-            } 
+            }
         });
     }
 
     function eliminatePlayer(player) {
-        const isImposter = imposters.includes(player);
-        
         const newEliminatedPlayers = [...eliminatedPlayers, player];
         const newShuffledPlayers = shuffledPlayers.filter(p => p !== player);
         
@@ -324,7 +300,7 @@ export default function Room() {
                         </button>
                     </div>
 
-                    <button className="text-link" onClick={handleChangeModeClick}>
+                    <button className="text-link" onClick={handleBackToConfig}>
                         Change Mode
                     </button>
                 </div>
@@ -337,6 +313,11 @@ export default function Room() {
                         <p className="info-text">
                             Discuss and find the {imposterCount > 1 ? `${imposterCount} imposters` : 'imposter'}!
                         </p>
+                        {showWordCategory && (
+                            <p className="main-question">
+                                Category: <strong>{wordFamily}</strong>
+                            </p>
+                        )}
                         {randomizeImposters && showImposterCount && (
                             <p className="imposter-count-badge">
                                 {imposterCount} {imposterCount === 1 ? 'imposter' : 'imposters'} in this round

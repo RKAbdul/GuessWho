@@ -1,4 +1,4 @@
-const rolesData = [
+const roles = [
     {
         id: 'seraphis',
         name: 'Seraphis',
@@ -37,4 +37,4 @@ const rolesData = [
     }
 ];
 
-export default rolesData;
+export default roles;

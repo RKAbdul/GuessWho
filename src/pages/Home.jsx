@@ -1,6 +1,10 @@
 import React from 'react';
 import './home.css';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { GAME_MODES } from '../constants/gameModes';
+import { LANGUAGES } from '../constants/languages';
+import { randomInt } from '../utils/random';
+import { THEMES, applyTheme, getStoredTheme } from '../utils/theme';
 
 
 export default function Home() {
@@ -8,16 +12,19 @@ export default function Home() {
 
     // 0 = not in menu, 1 = in mode menu, 2 = room configuration menu
     const [inMenu, setInMenu] = React.useState(0);
-    const selectedMode = React.useRef(null);
+    const [theme, setTheme] = React.useState(getStoredTheme);
+    const [selectedMode, setSelectedMode] = React.useState(null);
     const [playerNames, setPlayerNames] = React.useState([]);
     const [inputName, setInputName] = React.useState("");
-    
+
     // Room configuration state
     const [imposterCount, setImposterCount] = React.useState(1);
     const [randomizeImposters, setRandomizeImposters] = React.useState(false);
     const [revealElimination, setRevealElimination] = React.useState(true);
     const [showImposterCount, setShowImposterCount] = React.useState(false);
     const [revealImposterStatus, setRevealImposterStatus] = React.useState(false);
+    const [showWordCategory, setShowWordCategory] = React.useState(true);
+    const [language, setLanguage] = React.useState(LANGUAGES.SPANISH);
     const [enableSpecialRoles, setEnableSpecialRoles] = React.useState(false);
     const [showRolesInfo, setShowRolesInfo] = React.useState(false);
     const [totalRounds, setTotalRounds] = React.useState(5);
@@ -32,13 +39,15 @@ export default function Home() {
     React.useEffect(() => {
         if (location.state?.returnToConfig) {
             setInMenu(2);
-            selectedMode.current = location.state.mode ?? 0;
+            setSelectedMode(location.state.mode ?? GAME_MODES.IMPOSTER_WORD);
             setPlayerNames(location.state.players || []);
             setImposterCount(location.state.imposterCount || 1);
             setRandomizeImposters(location.state.randomizeImposters ?? false);
             setRevealElimination(location.state.revealElimination ?? true);
             setShowImposterCount(location.state.showImposterCount ?? false);
             setRevealImposterStatus(location.state.revealImposterStatus ?? false);
+            setShowWordCategory(location.state.showWordCategory ?? true);
+            setLanguage(location.state.language ?? LANGUAGES.SPANISH);
             setEnableSpecialRoles(location.state.enableSpecialRoles ?? false);
             setEnableSeraphis(location.state.enableSeraphis ?? false);
             setEnableSpectra(location.state.enableSpectra ?? false);
@@ -52,10 +61,14 @@ export default function Home() {
         setInMenu(1);
     }
 
-    //i = 0 for imposter word, 1 for answer the question, 2 for who answered
-    function handleModeClick(i) {
+    function handleThemeChange(newTheme) {
+        setTheme(newTheme);
+        applyTheme(newTheme);
+    }
+
+    function handleModeClick(mode) {
         setInMenu(2);
-        selectedMode.current = i;
+        setSelectedMode(mode);
         // Reset configuration
         setPlayerNames([]);
         setInputName("");
@@ -64,6 +77,8 @@ export default function Home() {
         setRevealElimination(true);
         setShowImposterCount(false);
         setRevealImposterStatus(false);
+        setShowWordCategory(true);
+        setLanguage(LANGUAGES.SPANISH);
         setEnableSpecialRoles(false);
         setEnableSeraphis(false);
         setEnableSpectra(false);
@@ -74,11 +89,11 @@ export default function Home() {
     
     // Auto-disable Censor and Inquisitor when Questions mode is active
     React.useEffect(() => {
-        if (selectedMode.current === 1) {
+        if (selectedMode === GAME_MODES.ANSWER_THE_QUESTION) {
             setEnableCensor(false);
             setEnableInquisitor(false);
         }
-    }, [selectedMode.current, enableSpecialRoles]);
+    }, [selectedMode, enableSpecialRoles]);
 
     function handleBackToModes() {
         setInMenu(1);
@@ -92,7 +107,7 @@ export default function Home() {
         if (imposterCount > maxImposters) {
             setImposterCount(maxImposters);
         }
-    }, [playerNames.length, maxImposters]);
+    }, [playerNames.length, maxImposters, imposterCount]);
 
     function handleAddPlayer() {
         if (inputName.trim() && !playerNames.includes(inputName.trim())) {
@@ -112,18 +127,20 @@ export default function Home() {
             return;
         }
 
-        const finalImposterCount = randomizeImposters 
-            ? Math.floor(Math.random() * maxImposters) + 1 
+        const finalImposterCount = randomizeImposters
+            ? randomInt(1, maxImposters)
             : imposterCount;
 
         const gameState = {
             players: playerNames,
-            mode: selectedMode.current,
+            mode: selectedMode,
             imposterCount: finalImposterCount,
             randomizeImposters: randomizeImposters,
             revealElimination: revealElimination,
             showImposterCount: randomizeImposters ? showImposterCount : false,
             revealImposterStatus: revealImposterStatus,
+            showWordCategory: showWordCategory,
+            language: language,
             enableSpecialRoles: enableSpecialRoles,
             totalRounds: totalRounds,
             selectedRoles: {
@@ -134,11 +151,11 @@ export default function Home() {
             }
         };
 
-        if (selectedMode.current === 0) {
+        if (selectedMode === GAME_MODES.IMPOSTER_WORD) {
             navigate('/room', { state: gameState });
-        } else if (selectedMode.current === 1) {
+        } else if (selectedMode === GAME_MODES.ANSWER_THE_QUESTION) {
             navigate('/qroom', { state: gameState });
-        } else if (selectedMode.current === 2) {
+        } else if (selectedMode === GAME_MODES.WHO_ANSWERED) {
             navigate('/waroom', { state: gameState });
         }
     }
@@ -153,17 +170,36 @@ export default function Home() {
         </div>
   
         {inMenu === 0 && (
+          <div className="theme-switcher">
+            <button
+              className={`theme-swatch theme-swatch-pink ${theme === THEMES.PINK ? 'active' : ''}`}
+              onClick={() => handleThemeChange(THEMES.PINK)}
+              aria-label="Pink theme"
+              title="Pink theme"
+              type="button"
+            />
+            <button
+              className={`theme-swatch theme-swatch-yellow ${theme === THEMES.YELLOW ? 'active' : ''}`}
+              onClick={() => handleThemeChange(THEMES.YELLOW)}
+              aria-label="Yellow theme"
+              title="Yellow theme"
+              type="button"
+            />
+          </div>
+        )}
+
+        {inMenu === 0 && (
           <div className="logo-container">
-            <div className="logo-number-bg">2</div>
+            <div className="logo-number-bg">3</div>
             <h1 className="logo">
               <span className="logo-main">GuessWho</span>
-              <span className="logo-version">2</span>
+              <span className="logo-version">3</span>
             </h1>
             <p className="logo-tagline">Who's the Imposter?</p>
           </div>
         )}
 
-        {inMenu === 0 && <button className="play-button" 
+        {inMenu === 0 && <button className="play-button"
         onClick={handlePlayClick}>
           Play
         </button>}
@@ -172,15 +208,15 @@ export default function Home() {
         <div className="menu-box mode-selection">
           <h2 className="menu-title">Select Game Mode</h2>
           <div className="mode-cards">
-            <div className="mode-card" onClick={() => handleModeClick(0)}>
+            <div className="mode-card" onClick={() => handleModeClick(GAME_MODES.IMPOSTER_WORD)}>
               <h3 className="mode-card-title">Imposter Word</h3>
               <p className="mode-card-description">One player gets a different word. Find the imposter!</p>
             </div>
-            <div className="mode-card" onClick={() => handleModeClick(1)}>
+            <div className="mode-card" onClick={() => handleModeClick(GAME_MODES.ANSWER_THE_QUESTION)}>
               <h3 className="mode-card-title">Answer The Question</h3>
               <p className="mode-card-description">One player gets a different question. Spot the odd one out!</p>
             </div>
-            <div className="mode-card" onClick={() => handleModeClick(2)}>
+            <div className="mode-card" onClick={() => handleModeClick(GAME_MODES.WHO_ANSWERED)}>
               <h3 className="mode-card-title">Who Answered?</h3>
               <p className="mode-card-description">Everyone answers the same question. Guess who said it!</p>
             </div>
@@ -226,8 +262,29 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Language Section */}
+          <div className="config-section">
+            <h3 className="config-section-title">Language</h3>
+            <div className="language-toggle">
+              <button
+                type="button"
+                className={`language-option ${language === LANGUAGES.SPANISH ? 'active' : ''}`}
+                onClick={() => setLanguage(LANGUAGES.SPANISH)}
+              >
+                Español
+              </button>
+              <button
+                type="button"
+                className={`language-option ${language === LANGUAGES.ENGLISH ? 'active' : ''}`}
+                onClick={() => setLanguage(LANGUAGES.ENGLISH)}
+              >
+                English
+              </button>
+            </div>
+          </div>
+
           {/* Rounds Configuration Section - Only for mode 2 (Who Answered) */}
-          {playerNames.length >= 3 && selectedMode.current === 2 && (
+          {playerNames.length >= 3 && selectedMode === GAME_MODES.WHO_ANSWERED && (
             <div className="config-section">
               <h3 className="config-section-title">Game Settings</h3>
               
@@ -255,7 +312,7 @@ export default function Home() {
           )}
 
           {/* Imposter Configuration Section - Only for modes 0 and 1 */}
-          {playerNames.length >= 3 && selectedMode.current !== 2 && (
+          {playerNames.length >= 3 && selectedMode !== GAME_MODES.WHO_ANSWERED && (
             <div className="config-section">
               <h3 className="config-section-title">Imposters</h3>
               
@@ -324,6 +381,22 @@ export default function Home() {
                   </div>
                 )}
 
+                {selectedMode === GAME_MODES.IMPOSTER_WORD && (
+                  <div className="randomize-option">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={showWordCategory}
+                        onChange={(e) => setShowWordCategory(e.target.checked)}
+                        className="checkbox-input"
+                      />
+                      <span className="checkbox-text">
+                        Show word category during the game
+                      </span>
+                    </label>
+                  </div>
+                )}
+
                 <div className="randomize-option">
                   <label className="checkbox-label">
                     <input
@@ -343,7 +416,7 @@ export default function Home() {
           )}
 
           {/* Special Roles Configuration - Only for modes 0 and 1 */}
-          {playerNames.length >= 3 && selectedMode.current !== 2 && (
+          {playerNames.length >= 3 && selectedMode !== GAME_MODES.WHO_ANSWERED && (
             <div className="config-section">
               <h3 className="config-section-title">Special Roles</h3>
               
@@ -376,7 +449,7 @@ export default function Home() {
                   <div className="individual-roles-selection">
                     <p className="roles-selection-label">
                       Select which roles to include:
-                      {selectedMode.current === 1 && (
+                      {selectedMode === GAME_MODES.ANSWER_THE_QUESTION && (
                         <span className="mode-restriction-note"> (Questions Mode - Only Seraphis & Spectra available)</span>
                       )}
                     </p>
@@ -406,7 +479,7 @@ export default function Home() {
                         </span>
                       </label>
 
-                      {selectedMode.current === 0 && (
+                      {selectedMode === GAME_MODES.IMPOSTER_WORD && (
                         <>
                           <label className="role-checkbox-label">
                             <input

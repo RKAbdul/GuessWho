@@ -20,7 +20,7 @@ button:focus {
 }
 
 button:focus-visible {
-    outline: 2px solid rgba(255, 107, 107, 0.5);
+    outline: 2px solid rgba(var(--color-primary-rgb), 0.5);
     outline-offset: 2px;
 }
 
@@ -36,6 +36,7 @@ div:focus {
     height: 100vh;
     overflow: hidden;
     position: relative;
+    padding: 0 16px;
 }
 
 /* Logo Container with the big 2 behind */
@@ -61,11 +62,11 @@ div:focus {
     }
 }
 
-/* Giant background 2 */
+/* Giant background number */
 .logo-number-bg {
     position: absolute;
     font-family: "Baloo Bhaijaan 2", cursive;
-    font-size: 350px;
+    font-size: clamp(140px, 42vw, 350px);
     font-weight: 900;
     color: #3a3a3a;
     z-index: 1;
@@ -86,16 +87,19 @@ div:focus {
   
 .logo {
     font-family: "Baloo Bhaijaan 2", cursive;
-    font-size: 90px;
-    color: #fefdff; 
+    font-size: clamp(38px, 11vw, 90px);
+    color: #fefdff;
     margin: 0;
     z-index: 10;
     position: relative;
     display: flex;
     align-items: baseline;
-    gap: 10px;
-    text-shadow: 
-        3px 3px 0px #8a8888, 
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(6px, 2vw, 10px);
+    max-width: 100%;
+    text-shadow:
+        3px 3px 0px #8a8888,
         6px 6px 0px #4e4e4e,
         0 0 30px rgba(254, 253, 255, 0.3);
 }
@@ -114,12 +118,12 @@ div:focus {
 }
 
 .logo-version {
-    font-size: 60px;
-    color: #ff6b6b;
+    font-size: clamp(26px, 7.5vw, 60px);
+    color: var(--color-primary);
     text-shadow: 
-        2px 2px 0px #a83c3c, 
-        4px 4px 0px #6b2424,
-        0 0 20px rgba(255, 107, 107, 0.6);
+        2px 2px 0px var(--color-primary-dark), 
+        4px 4px 0px var(--color-primary-darker),
+        0 0 20px rgba(var(--color-primary-rgb), 0.6);
     animation: versionPulse 2s ease-in-out infinite;
 }
 
@@ -136,11 +140,12 @@ div:focus {
 
 .logo-tagline {
     font-family: "Baloo Bhaijaan 2", cursive;
-    font-size: 18px;
+    font-size: clamp(13px, 3.2vw, 18px);
     color: #b8b8b8;
     margin-top: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
+    text-align: center;
     z-index: 10;
     position: relative;
     animation: fadeInUp 1s ease-out 0.3s both;
@@ -157,21 +162,59 @@ div:focus {
     }
 }
 
+/* Theme Switcher */
+.theme-switcher {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 20;
+    animation: fadeInUp 1s ease-out 0.2s both;
+}
+
+.theme-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    transition: all 0.2s ease;
+}
+
+.theme-swatch:hover {
+    transform: scale(1.15);
+}
+
+.theme-swatch.active {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.theme-swatch-pink {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+}
+
+.theme-swatch-yellow {
+    background: linear-gradient(135deg, #ffc93c 0%, #ffd966 100%);
+}
+
 .play-button {
     font-family: "Baloo Bhaijaan 2", cursive;
     font-size: 28px;
     padding: 18px 60px;
     border: none;
     border-radius: 50px;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
     color: #ffffff;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
     z-index: 10;
     box-shadow: 
-        0 8px 0px #a83c3c,
-        0 12px 25px rgba(255, 107, 107, 0.4);
+        0 8px 0px var(--color-primary-dark),
+        0 12px 25px rgba(var(--color-primary-rgb), 0.4);
     position: relative;
     animation: fadeInUp 1s ease-out 0.5s both;
     outline: none;
@@ -182,19 +225,19 @@ div:focus {
 }
   
 .play-button:hover {
-    background: linear-gradient(135deg, #ff8787 0%, #ffa3a3 100%);
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary-lighter) 100%);
     color: #fff;
     transform: translateY(-5px) scale(1.05);
     box-shadow: 
-        0 12px 0px #a83c3c,
-        0 20px 35px rgba(255, 107, 107, 0.6);
+        0 12px 0px var(--color-primary-dark),
+        0 20px 35px rgba(var(--color-primary-rgb), 0.6);
 }
 
 .play-button:active {
     transform: translateY(-2px) scale(1.02);
     box-shadow: 
-        0 4px 0px #a83c3c,
-        0 8px 15px rgba(255, 107, 107, 0.4);
+        0 4px 0px var(--color-primary-dark),
+        0 8px 15px rgba(var(--color-primary-rgb), 0.4);
 }
   
   /* Floating Question Marks - Enhanced */
@@ -216,7 +259,7 @@ div:focus {
     font-size: 50px;
     font-weight: bold;
     font-family: "Baloo Bhaijaan 2", cursive;
-    background: linear-gradient(135deg, #ff6b6b, #ffa3a3, #ff8787);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-lighter), var(--color-primary-light));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -253,12 +296,12 @@ div:focus {
     padding: 30px;
     border-radius: 20px;
     backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 107, 107, 0.3);
+    border: 2px solid rgba(var(--color-primary-rgb), 0.3);
     text-align: center;
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.5s ease-out forwards;
     width: auto;
-    min-width: 300px;
+    min-width: min(300px, 90vw);
     z-index: 10;
   }
   
@@ -391,16 +434,16 @@ div:focus {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.25s ease;
-  border: 2px solid rgba(255, 107, 107, 0.3);
+  border: 2px solid rgba(var(--color-primary-rgb), 0.3);
   text-align: left;
   position: relative;
 }
 
 .mode-card:hover {
   transform: translateX(8px);
-  border-color: rgba(255, 107, 107, 0.7);
+  border-color: rgba(var(--color-primary-rgb), 0.7);
   background: linear-gradient(135deg, rgba(100, 100, 100, 0.8) 0%, rgba(70, 70, 70, 0.8) 100%);
-  box-shadow: 0 5px 20px rgba(255, 107, 107, 0.25);
+  box-shadow: 0 5px 20px rgba(var(--color-primary-rgb), 0.25);
 }
 
 .mode-card-title {
@@ -431,15 +474,48 @@ div:focus {
   padding: 20px;
   background: rgba(60, 60, 60, 0.5);
   border-radius: 12px;
-  border: 1px solid rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.2);
 }
 
 .config-section-title {
   font-family: "Baloo Bhaijaan 2", cursive;
   font-size: 20px;
-  color: #ff6b6b;
+  color: var(--color-primary);
   margin: 0 0 15px 0;
-  text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+  text-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.3);
+}
+
+/* Language Toggle */
+.language-toggle {
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 6px;
+  border-radius: 12px;
+}
+
+.language-option {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #b0b0b0;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.language-option:hover {
+  color: #ffffff;
+}
+
+.language-option.active {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.4);
 }
 
 /* Player Management */
@@ -477,10 +553,12 @@ div:focus {
   font-size: 16px;
   color: #ffffff;
   font-weight: 500;
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
 .remove-button {
-  background: rgba(255, 107, 107, 0.8);
+  background: rgba(var(--color-primary-rgb), 0.8);
   border: none;
   color: white;
   width: 28px;
@@ -497,7 +575,7 @@ div:focus {
 }
 
 .remove-button:hover {
-  background: rgba(255, 107, 107, 1);
+  background: rgba(var(--color-primary-rgb), 1);
   transform: rotate(90deg) scale(1.1);
 }
 
@@ -533,8 +611,8 @@ div:focus {
 .imposter-value {
   font-size: 24px;
   font-weight: bold;
-  color: #ff6b6b;
-  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  color: var(--color-primary);
+  text-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.5);
 }
 
 .imposter-slider {
@@ -553,31 +631,31 @@ div:focus {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  box-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.5);
   transition: all 0.2s;
 }
 
 .imposter-slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 0 15px rgba(255, 107, 107, 0.8);
+  box-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.8);
 }
 
 .imposter-slider::-moz-range-thumb {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   cursor: pointer;
   border: none;
-  box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+  box-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.5);
   transition: all 0.2s;
 }
 
 .imposter-slider::-moz-range-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 0 15px rgba(255, 107, 107, 0.8);
+  box-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.8);
 }
 
 .imposter-slider:disabled {
@@ -596,9 +674,9 @@ div:focus {
 
 .randomize-option {
   padding: 15px;
-  background: rgba(255, 107, 107, 0.1);
+  background: rgba(var(--color-primary-rgb), 0.1);
   border-radius: 10px;
-  border: 1px solid rgba(255, 107, 107, 0.3);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.3);
 }
 
 .checkbox-label {
@@ -612,7 +690,7 @@ div:focus {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #ff6b6b;
+  accent-color: var(--color-primary);
 }
 
 .checkbox-text {
@@ -660,20 +738,20 @@ div:focus {
 }
 
 .start-button {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   color: #ffffff;
-  box-shadow: 0 5px 0px #a83c3c;
+  box-shadow: 0 5px 0px var(--color-primary-dark);
 }
 
 .start-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #ff8787 0%, #ffa3a3 100%);
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary-lighter) 100%);
   transform: translateY(-3px);
-  box-shadow: 0 8px 0px #a83c3c;
+  box-shadow: 0 8px 0px var(--color-primary-dark);
 }
 
 .start-button:active:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 3px 0px #a83c3c;
+  box-shadow: 0 3px 0px var(--color-primary-dark);
 }
 
 .start-button:disabled {
@@ -695,12 +773,12 @@ div:focus {
 }
 
 .room-config::-webkit-scrollbar-thumb {
-  background: rgba(255, 107, 107, 0.5);
+  background: rgba(var(--color-primary-rgb), 0.5);
   border-radius: 10px;
 }
 
 .room-config::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 107, 107, 0.7);
+  background: rgba(var(--color-primary-rgb), 0.7);
 }
 
 /* Special Roles Section */
@@ -714,7 +792,7 @@ div:focus {
   padding: 12px 24px;
   background: rgba(80, 80, 80, 0.6);
   color: #ffffff;
-  border: 2px solid rgba(255, 107, 107, 0.3);
+  border: 2px solid rgba(var(--color-primary-rgb), 0.3);
   border-radius: 12px;
   font-family: "Baloo Bhaijaan 2", cursive;
   font-size: 16px;
@@ -725,7 +803,7 @@ div:focus {
 
 .info-button:hover {
   background: rgba(100, 100, 100, 0.8);
-  border-color: rgba(255, 107, 107, 0.5);
+  border-color: rgba(var(--color-primary-rgb), 0.5);
   transform: translateY(-2px);
 }
 
@@ -735,7 +813,7 @@ div:focus {
   padding: 15px;
   background: rgba(60, 60, 60, 0.4);
   border-radius: 12px;
-  border: 1px solid rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.2);
 }
 
 .roles-selection-label {
@@ -773,7 +851,7 @@ div:focus {
 
 .role-checkbox-label:hover {
   background: rgba(100, 100, 100, 0.4);
-  border-color: rgba(255, 107, 107, 0.3);
+  border-color: rgba(var(--color-primary-rgb), 0.3);
 }
 
 .role-checkbox-text {
@@ -783,7 +861,7 @@ div:focus {
 }
 
 .role-checkbox-text strong {
-  color: #ff6b6b;
+  color: var(--color-primary);
   font-size: 15px;
 }
 
@@ -839,7 +917,7 @@ div:focus {
   justify-content: space-between;
   align-items: center;
   padding: 20px 25px;
-  border-bottom: 2px solid rgba(255, 107, 107, 0.3);
+  border-bottom: 2px solid rgba(var(--color-primary-rgb), 0.3);
   position: sticky;
   top: 0;
   background: #2a2a2a;
@@ -849,7 +927,7 @@ div:focus {
 .modal-title {
   font-family: "Baloo Bhaijaan 2", cursive;
   font-size: 24px;
-  color: #ff6b6b;
+  color: var(--color-primary);
   margin: 0;
 }
 
@@ -869,7 +947,7 @@ div:focus {
 }
 
 .modal-close:hover {
-  color: #ff6b6b;
+  color: var(--color-primary);
 }
 
 .modal-body {
@@ -881,28 +959,28 @@ div:focus {
 
 .role-info-card {
   background: rgba(40, 40, 40, 0.8);
-  border: 2px solid rgba(255, 107, 107, 0.3);
+  border: 2px solid rgba(var(--color-primary-rgb), 0.3);
   border-radius: 15px;
   padding: 20px;
   transition: all 0.3s ease;
 }
 
 .role-info-card:hover {
-  border-color: rgba(255, 107, 107, 0.5);
+  border-color: rgba(var(--color-primary-rgb), 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+  box-shadow: 0 5px 15px rgba(var(--color-primary-rgb), 0.2);
 }
 
 .role-name {
   font-family: "Baloo Bhaijaan 2", cursive;
   font-size: 22px;
-  color: #ff6b6b;
+  color: var(--color-primary);
   margin: 0 0 8px 0;
 }
 
 .role-ability {
   font-size: 16px;
-  color: #ffa3a3;
+  color: var(--color-primary-lighter);
   font-weight: 600;
   margin: 0 0 12px 0;
 }
@@ -922,8 +1000,8 @@ div:focus {
 }
 
 .role-info-note {
-  background: rgba(255, 107, 107, 0.1);
-  border: 2px solid rgba(255, 107, 107, 0.3);
+  background: rgba(var(--color-primary-rgb), 0.1);
+  border: 2px solid rgba(var(--color-primary-rgb), 0.3);
   border-radius: 12px;
   padding: 15px;
 }
@@ -936,7 +1014,7 @@ div:focus {
 }
 
 .role-info-note strong {
-  color: #ff6b6b;
+  color: var(--color-primary);
 }
 
 /* Modal Scrollbar */
@@ -950,12 +1028,12 @@ div:focus {
 }
 
 .modal-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 107, 107, 0.5);
+  background: rgba(var(--color-primary-rgb), 0.5);
   border-radius: 10px;
 }
 
 .modal-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 107, 107, 0.7);
+  background: rgba(var(--color-primary-rgb), 0.7);
 }
 
 /* Mobile Responsive */
@@ -983,6 +1061,37 @@ div:focus {
   .info-button {
     font-size: 14px;
     padding: 10px 20px;
+  }
+
+  .play-button {
+    font-size: 22px;
+    padding: 14px 40px;
+  }
+
+  .menu-title {
+    font-size: 20px;
+  }
+
+  .menu-box {
+    padding: 20px;
+  }
+
+  .mode-card-title {
+    font-size: 18px;
+  }
+
+  .config-section {
+    padding: 15px;
+  }
+
+  .config-actions {
+    flex-direction: column;
+  }
+
+  .back-button,
+  .start-button {
+    font-size: 16px;
+    padding: 13px 20px;
   }
 }
   

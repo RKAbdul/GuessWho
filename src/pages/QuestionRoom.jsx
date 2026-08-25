@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import "./room.css";
-import questionsData from "../assets/questionsData";
-import rolesData from "../assets/rolesData";
+import "./rooms.css";
+import questions from "../data/questions";
+import questionsEs from "../data/questionsEs";
+import roles from "../data/roles";
+import { shuffle, sampleUnique, pickOne } from "../utils/random";
+import { LANGUAGES } from "../constants/languages";
 
-export default function Room() {
+export default function QuestionRoom() {
     const location = useLocation();
     const navigate = useNavigate();
-    const players = location.state.players;
-    const mode = location.state.mode;
-    
+    const players = location.state?.players || [];
+    const mode = location.state?.mode;
+
     // Special roles and imposter reveal states
     const enableSpecialRoles = location.state?.enableSpecialRoles || false;
     const selectedRoles = location.state?.selectedRoles || {};
     const revealImposterStatus = location.state?.revealImposterStatus || false;
+    const language = location.state?.language ?? LANGUAGES.SPANISH;
+    const questionsData = language === LANGUAGES.ENGLISH ? questions : questionsEs;
 
     const [shuffledPlayers, setShuffledPlayers] = useState([]);
     const [questionsAssignment, setQuestionsAssignment] = useState({});
@@ -34,62 +39,51 @@ export default function Room() {
     const [revealedRoles, setRevealedRoles] = useState([]);
 
     useEffect(() => {
-        if (players.length < 3) return;
-    
+        if (players.length < 3) {
+            navigate('/');
+            return;
+        }
+
         initializeGame();
-    }, [players]);
+    }, []);
 
     function initializeGame() {
-        let shuffled = [...players].sort(() => Math.random() - 0.5);
+        let shuffled = shuffle(players);
         setShuffledPlayers(shuffled);
-    
-        const randomQuestionSet = questionsData[Math.floor(Math.random() * questionsData.length)];
-        let questionChoices = [...randomQuestionSet.questions].sort(() => Math.random() - 0.5);
-    
+
+        const randomQuestionSet = pickOne(questionsData);
+        const questionPair = pickOne(randomQuestionSet.questions);
+        setQuestionData(questionPair);
+
         const assignedQuestions = {};
-        let questionIndex = 0;
-        setQuestionData(questionChoices[questionIndex]);
-    
         shuffled.forEach((player) => {
-            assignedQuestions[player] = questionChoices[questionIndex][0];
+            assignedQuestions[player] = questionPair[0];
         });
-    
+
         // Assign imposter a different question from the same set
-        const imposterIndex = Math.floor(Math.random() * shuffled.length);
-        const imposterPlayer = shuffled[imposterIndex];
-        assignedQuestions[imposterPlayer] = questionChoices[questionIndex][1];
+        const imposterPlayer = pickOne(shuffled);
+        assignedQuestions[imposterPlayer] = questionPair[1];
         setImposter(imposterPlayer);
-    
+
         setQuestionsAssignment(assignedQuestions);
 
         // Initialize Special Roles (only Seraphis and Spectra for Questions mode)
         if (enableSpecialRoles) {
             // Filter to only Seraphis and Spectra
-            const enabledRoles = rolesData.filter(role => 
+            const enabledRoles = roles.filter(role => 
                 (role.id === 'seraphis' && selectedRoles.seraphis) ||
                 (role.id === 'spectra' && selectedRoles.spectra)
             );
 
             if (enabledRoles.length > 0) {
                 const numRolesToAssign = Math.min(enabledRoles.length, Math.max(2, Math.floor(shuffled.length / 2)));
-                const shuffledRoles = [...enabledRoles].sort(() => Math.random() - 0.5);
+                const shuffledRoles = shuffle(enabledRoles);
+                const rolePlayers = sampleUnique(shuffled, numRolesToAssign);
+
                 const assignedRoles = {};
-
-                for (let i = 0; i < numRolesToAssign && i < shuffledRoles.length; i++) {
-                    let randomPlayerIndex;
-                    let randomPlayer;
-                    let attempts = 0;
-                    
-                    do {
-                        randomPlayerIndex = Math.floor(Math.random() * shuffled.length);
-                        randomPlayer = shuffled[randomPlayerIndex];
-                        attempts++;
-                    } while (assignedRoles[randomPlayer] && attempts < 50);
-
-                    if (!assignedRoles[randomPlayer]) {
-                        assignedRoles[randomPlayer] = shuffledRoles[i];
-                    }
-                }
+                rolePlayers.forEach((player, i) => {
+                    assignedRoles[player] = shuffledRoles[i];
+                });
 
                 setPlayerRoles(assignedRoles);
             }
@@ -129,11 +123,10 @@ export default function Room() {
     }
 
     function eliminatePlayer(player) {
-        const isImposter = player === imposter;
-        const wasImposter = isImposter;
-        
+        const wasImposter = player === imposter;
+
         setEliminatedPlayers([...eliminatedPlayers, { name: player, wasImposter }]);
-        setImposterEliminated(isImposter);
+        setImposterEliminated(wasImposter);
         setVoting(false);
         
         // Check for role reveal on death
@@ -148,26 +141,13 @@ export default function Room() {
         );
         
         // End game if imposter eliminated or too few players remain
-        if (isImposter || remainingPlayers.length < 3) {
+        if (wasImposter || remainingPlayers.length < 3) {
             setGamePhase(2);
         }
     }
 
     function handleGoHome() {
         navigate('/');
-    }
-
-    function handleChangeModeClick() {
-        navigate('/', {
-            state: {
-                returnToConfig: true,
-                players: players,
-                mode: mode,
-                enableSpecialRoles: enableSpecialRoles,
-                selectedRoles: selectedRoles,
-                revealImposterStatus: revealImposterStatus
-            }
-        });
     }
 
     function handleBackToConfig() {
@@ -178,7 +158,8 @@ export default function Room() {
                 mode: mode,
                 enableSpecialRoles: enableSpecialRoles,
                 selectedRoles: selectedRoles,
-                revealImposterStatus: revealImposterStatus
+                revealImposterStatus: revealImposterStatus,
+                language: language
             }
         });
     }
@@ -296,7 +277,7 @@ export default function Room() {
                         )}
                     </div>
 
-                    <button className="text-link" onClick={handleChangeModeClick}>
+                    <button className="text-link" onClick={handleBackToConfig}>
                         Change Mode
                     </button>
                 </div>
@@ -316,7 +297,7 @@ export default function Room() {
 
                     <div className="players-list">
                         <h3 className="list-title">Players & Answers</h3>
-                        {players.map((player, index) => {
+                        {shuffledPlayers.map((player, index) => {
                             const isEliminated = eliminatedPlayers.some(e => e.name === player);
                             return (
                                 <motion.div

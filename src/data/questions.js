@@ -1,4 +1,4 @@
-const questionsData = [
+const questions = [
     {
       category: "Gaming",
       questions: [
@@ -784,4 +784,4 @@ const questionsData = [
       }
   ];
   
-  export default questionsData;
+  export default questions;
