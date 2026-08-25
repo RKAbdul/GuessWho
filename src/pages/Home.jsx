@@ -5,6 +5,8 @@ import { GAME_MODES } from '../constants/gameModes';
 import { LANGUAGES } from '../constants/languages';
 import { randomInt, makeGameId, shuffle, sampleUnique } from '../utils/random';
 import { THEMES, applyTheme, getStoredTheme } from '../utils/theme';
+import words from '../data/words';
+import wordsEs from '../data/wordsEs';
 
 
 // Splits players into teams of 2 for Describe & Guess. An odd leftover
@@ -50,12 +52,14 @@ export default function Home() {
     const [randomizeImposters, setRandomizeImposters] = React.useState(false);
     const [revealElimination, setRevealElimination] = React.useState(true);
     const [showImposterCount, setShowImposterCount] = React.useState(false);
-    const [revealImposterStatus, setRevealImposterStatus] = React.useState(false);
+    const [revealImposterStatus, setRevealImposterStatus] = React.useState(true);
     const [showWordCategory, setShowWordCategory] = React.useState(true);
     const [language, setLanguage] = React.useState(LANGUAGES.SPANISH);
     const [enableSpecialRoles, setEnableSpecialRoles] = React.useState(false);
     const [showRolesInfo, setShowRolesInfo] = React.useState(false);
     const [totalRounds, setTotalRounds] = React.useState(5);
+    const [disabledCategories, setDisabledCategories] = React.useState([]); // category ids turned off; all active by default
+    const [categoriesExpanded, setCategoriesExpanded] = React.useState(false);
 
     // Describe & Guess configuration
     const [timerDuration, setTimerDuration] = React.useState(60);
@@ -78,7 +82,7 @@ export default function Home() {
             setRandomizeImposters(location.state.randomizeImposters ?? false);
             setRevealElimination(location.state.revealElimination ?? true);
             setShowImposterCount(location.state.showImposterCount ?? false);
-            setRevealImposterStatus(location.state.revealImposterStatus ?? false);
+            setRevealImposterStatus(location.state.revealImposterStatus ?? true);
             setShowWordCategory(location.state.showWordCategory ?? true);
             setLanguage(location.state.language ?? LANGUAGES.SPANISH);
             setEnableSpecialRoles(location.state.enableSpecialRoles ?? false);
@@ -90,6 +94,7 @@ export default function Home() {
             setTimerDuration(location.state.timerDuration || 60);
             setOddTeamStrategy(location.state.oddTeamStrategy || 'teamOfThree');
             setTeams(location.state.teams || []);
+            setDisabledCategories(location.state.disabledCategories || []);
         }
     }, [location]);
 
@@ -112,7 +117,7 @@ export default function Home() {
         setRandomizeImposters(false);
         setRevealElimination(true);
         setShowImposterCount(false);
-        setRevealImposterStatus(false);
+        setRevealImposterStatus(true);
         setShowWordCategory(true);
         setLanguage(LANGUAGES.SPANISH);
         setEnableSpecialRoles(false);
@@ -124,6 +129,7 @@ export default function Home() {
         setTimerDuration(60);
         setOddTeamStrategy('teamOfThree');
         setTeams([]);
+        setDisabledCategories([]);
     }
     
     // Auto-disable Censor and Inquisitor when Questions mode is active
@@ -160,6 +166,19 @@ export default function Home() {
         setTeams(generateTeams(playerNames, oddTeamStrategy));
     }
 
+    // Category options shown for toggling, in whichever language is
+    // currently selected. Ids match between words.js/wordsEs.js, so a
+    // toggle made while viewing one language still applies correctly if the
+    // language is switched afterward.
+    const categoryOptions = language === LANGUAGES.ENGLISH ? words : wordsEs;
+    const usesCategories = selectedMode === GAME_MODES.IMPOSTER_WORD || selectedMode === GAME_MODES.DESCRIBE_GUESS;
+
+    function toggleCategory(id) {
+        setDisabledCategories(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+    }
+
     function handleAddPlayer() {
         if (inputName.trim() && !playerNames.includes(inputName.trim())) {
             setPlayerNames([...playerNames, inputName.trim()]);
@@ -176,6 +195,18 @@ export default function Home() {
         if (playerNames.length < 3) {
             alert("You need at least 3 players to start!");
             return;
+        }
+
+        if (usesCategories) {
+            const enabledCategoryCount = categoryOptions.length - disabledCategories.length;
+            if (enabledCategoryCount < 1) {
+                alert("You need at least one category enabled to start!");
+                return;
+            }
+            if (selectedMode === GAME_MODES.DESCRIBE_GUESS && enabledCategoryCount < 2) {
+                alert("Describe & Guess needs at least 2 categories enabled — one gets removed each turn!");
+                return;
+            }
         }
 
         const finalImposterCount = randomizeImposters
@@ -198,6 +229,7 @@ export default function Home() {
             timerDuration: timerDuration,
             teams: teams,
             oddTeamStrategy: oddTeamStrategy,
+            disabledCategories: disabledCategories,
             selectedRoles: {
                 seraphis: enableSeraphis,
                 spectra: enableSpectra,
@@ -226,6 +258,16 @@ export default function Home() {
         ))}
         </div>
   
+        {inMenu === 0 && (
+          <button
+            className="whats-new-button"
+            onClick={() => navigate('/changelog')}
+            type="button"
+          >
+            ✨ What's New
+          </button>
+        )}
+
         {inMenu === 0 && (
           <div className="theme-switcher">
             <button
@@ -443,45 +485,91 @@ export default function Home() {
             </div>
           )}
 
+          {/* Category Selection - Only for modes that draw from word categories */}
+          {playerNames.length >= 3 && usesCategories && (
+            <div className="config-section">
+              <button
+                type="button"
+                className="collapsible-header"
+                onClick={() => setCategoriesExpanded(prev => !prev)}
+                aria-expanded={categoriesExpanded}
+              >
+                <h3 className="config-section-title">
+                  Categories
+                  {disabledCategories.length > 0 && (
+                    <span className="collapsible-header-hint">
+                      {' '}({categoryOptions.length - disabledCategories.length}/{categoryOptions.length} active)
+                    </span>
+                  )}
+                </h3>
+                <span className={`collapse-chevron ${categoriesExpanded ? 'expanded' : ''}`}>▾</span>
+              </button>
+              {categoriesExpanded && (
+                <>
+                  <p className="roles-selection-label">
+                    Choose which categories can be picked (all active by default):
+                  </p>
+                  <div className="role-checkbox-grid">
+                    {categoryOptions.map((category) => (
+                      <label key={category.id} className="role-checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={!disabledCategories.includes(category.id)}
+                          onChange={() => toggleCategory(category.id)}
+                          className="checkbox-input"
+                        />
+                        <span className="role-checkbox-text">{category.family}</span>
+                      </label>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
           {/* Imposter Configuration Section - Only for modes 0 and 1 */}
           {playerNames.length >= 3 && selectedMode !== GAME_MODES.WHO_ANSWERED && selectedMode !== GAME_MODES.DESCRIBE_GUESS && (
             <div className="config-section">
               <h3 className="config-section-title">Imposters</h3>
               
               <div className="imposter-controls">
-                <div className="imposter-slider-container">
-                  <label className="config-label">
-                    Number of Imposters: 
-                    <span className="imposter-value">{imposterCount}</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max={maxImposters}
-                    value={imposterCount}
-                    onChange={(e) => setImposterCount(parseInt(e.target.value))}
-                    className="imposter-slider"
-                    disabled={randomizeImposters}
-                  />
-                  <div className="slider-labels">
-                    <span>1</span>
-                    <span>Max: {maxImposters}</span>
-                  </div>
-                </div>
+                {maxImposters > 1 && (
+                  <>
+                    <div className="imposter-slider-container">
+                      <label className="config-label">
+                        Number of Imposters:
+                        <span className="imposter-value">{imposterCount}</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="1"
+                        max={maxImposters}
+                        value={imposterCount}
+                        onChange={(e) => setImposterCount(parseInt(e.target.value))}
+                        className="imposter-slider"
+                        disabled={randomizeImposters}
+                      />
+                      <div className="slider-labels">
+                        <span>1</span>
+                        <span>Max: {maxImposters}</span>
+                      </div>
+                    </div>
 
-                <div className="randomize-option">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={randomizeImposters}
-                      onChange={(e) => setRandomizeImposters(e.target.checked)}
-                      className="checkbox-input"
-                    />
-                    <span className="checkbox-text">
-                      Randomize imposters (1-{maxImposters})
-                    </span>
-                  </label>
-                </div>
+                    <div className="randomize-option">
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={randomizeImposters}
+                          onChange={(e) => setRandomizeImposters(e.target.checked)}
+                          className="checkbox-input"
+                        />
+                        <span className="checkbox-text">
+                          Randomize imposters (1-{maxImposters})
+                        </span>
+                      </label>
+                    </div>
+                  </>
+                )}
 
                 <div className="randomize-option">
                   <label className="checkbox-label">

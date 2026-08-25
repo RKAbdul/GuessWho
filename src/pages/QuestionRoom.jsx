@@ -31,7 +31,7 @@ export default function QuestionRoom() {
     // Special roles and imposter reveal states
     const enableSpecialRoles = effectiveConfig.enableSpecialRoles || false;
     const selectedRoles = effectiveConfig.selectedRoles || {};
-    const revealImposterStatus = effectiveConfig.revealImposterStatus || false;
+    const revealImposterStatus = effectiveConfig.revealImposterStatus ?? true;
     const language = effectiveConfig.language ?? LANGUAGES.SPANISH;
     const questionsData = language === LANGUAGES.ENGLISH ? questions : questionsEs;
 

@@ -42,7 +42,9 @@ export default function TeamRoom() {
     const timerDuration = effectiveConfig.timerDuration || 60;
     const totalRounds = effectiveConfig.totalRounds || 5;
     const language = effectiveConfig.language ?? LANGUAGES.SPANISH;
-    const wordsData = language === LANGUAGES.ENGLISH ? words : wordsEs;
+    const disabledCategories = effectiveConfig.disabledCategories || [];
+    const wordsData = (language === LANGUAGES.ENGLISH ? words : wordsEs)
+        .filter(category => !disabledCategories.includes(category.id));
 
     // Game phase per team turn: 'veto' -> 'handoff' -> 'active' -> 'turnEnd'
     // -> next team's 'veto' (or 'roundEnd'/'gameOver' once the round wraps).
@@ -90,7 +92,7 @@ export default function TeamRoom() {
     useEffect(() => {
         if (!gameId || turnCategories.length === 0) return;
         saveRoomSession(ROUTE_KEY, gameId, {
-            players, mode, teams, timerDuration, totalRounds, language
+            players, mode, teams, timerDuration, totalRounds, language, disabledCategories
         }, {
             gamePhase, roundNumber, turnCategories, turnActiveCategories, turnPool, currentWord,
             currentTeamIndex, turnsTaken, scores, turnEndsAt, timeLeft, turnCorrectCount
@@ -218,7 +220,8 @@ export default function TeamRoom() {
                 teams: teams,
                 timerDuration: timerDuration,
                 totalRounds: totalRounds,
-                language: language
+                language: language,
+                disabledCategories: disabledCategories
             }
         });
     }

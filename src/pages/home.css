@@ -162,6 +162,36 @@ div:focus {
     }
 }
 
+/* What's New Button */
+.whats-new-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 50px;
+  background: rgba(60, 60, 60, 0.7);
+  color: #ffffff;
+  font-family: "Baloo Bhaijaan 2", cursive;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid rgba(var(--color-primary-rgb), 0.4);
+  backdrop-filter: blur(6px);
+  transition: all 0.25s ease;
+  animation: fadeInUp 1s ease-out 0.2s both;
+}
+
+.whats-new-button:hover {
+  background: rgba(80, 80, 80, 0.85);
+  border-color: rgba(var(--color-primary-rgb), 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.3);
+}
+
 /* Theme Switcher */
 .theme-switcher {
     position: fixed;
@@ -419,6 +449,8 @@ div:focus {
 .mode-selection {
   width: 450px;
   max-width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 .mode-cards {
@@ -763,21 +795,25 @@ div:focus {
 
 /* Scrollbar Styling */
 
-.room-config::-webkit-scrollbar {
+.room-config::-webkit-scrollbar,
+.mode-selection::-webkit-scrollbar {
   width: 8px;
 }
 
-.room-config::-webkit-scrollbar-track {
+.room-config::-webkit-scrollbar-track,
+.mode-selection::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
 }
 
-.room-config::-webkit-scrollbar-thumb {
+.room-config::-webkit-scrollbar-thumb,
+.mode-selection::-webkit-scrollbar-thumb {
   background: rgba(var(--color-primary-rgb), 0.5);
   border-radius: 10px;
 }
 
-.room-config::-webkit-scrollbar-thumb:hover {
+.room-config::-webkit-scrollbar-thumb:hover,
+.mode-selection::-webkit-scrollbar-thumb:hover {
   background: rgba(var(--color-primary-rgb), 0.7);
 }
 
@@ -835,6 +871,44 @@ div:focus {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Collapsible section header (e.g. Categories) */
+.collapsible-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.collapsible-header .config-section-title {
+  margin: 0;
+}
+
+.collapsible-header-hint {
+  font-size: 13px;
+  color: #b0b0b0;
+  text-shadow: none;
+  font-weight: normal;
+}
+
+.collapse-chevron {
+  font-size: 20px;
+  color: var(--color-primary);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.collapse-chevron.expanded {
+  transform: rotate(180deg);
 }
 
 .role-checkbox-label {
@@ -1015,6 +1089,97 @@ div:focus {
 
 .role-info-note strong {
   color: var(--color-primary);
+}
+
+/* Changelog Page (standalone, shareable /changelog route) */
+.changelog-page-body {
+  width: 100%;
+  max-width: 560px;
+}
+
+.changelog-release {
+  margin-bottom: 28px;
+}
+
+.changelog-release:last-child {
+  margin-bottom: 0;
+}
+
+.changelog-release-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(var(--color-primary-rgb), 0.25);
+}
+
+.changelog-version {
+  font-family: "Baloo Bhaijaan 2", cursive;
+  font-size: 20px;
+  color: var(--color-primary);
+  text-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.changelog-date {
+  font-size: 13px;
+  color: #888;
+}
+
+.changelog-section {
+  margin-bottom: 22px;
+}
+
+.changelog-section:last-child {
+  margin-bottom: 0;
+}
+
+.changelog-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Baloo Bhaijaan 2", cursive;
+  font-size: 17px;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+}
+
+.changelog-section-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.changelog-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.changelog-item {
+  background: rgba(60, 60, 60, 0.45);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: all 0.25s ease;
+}
+
+.changelog-item:hover {
+  background: rgba(70, 70, 70, 0.6);
+  border-color: rgba(var(--color-primary-rgb), 0.4);
+}
+
+.changelog-item-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.changelog-item-detail {
+  font-size: 14px;
+  color: #c0c0c0;
+  line-height: 1.5;
+  margin: 0;
 }
 
 /* Modal Scrollbar */

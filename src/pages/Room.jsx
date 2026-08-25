@@ -34,10 +34,12 @@ export default function Room() {
     const revealElimination = effectiveConfig.revealElimination ?? true;
     const showImposterCount = effectiveConfig.showImposterCount ?? false;
     const randomizeImposters = effectiveConfig.randomizeImposters ?? false;
-    const revealImposterStatus = effectiveConfig.revealImposterStatus ?? false;
+    const revealImposterStatus = effectiveConfig.revealImposterStatus ?? true;
     const showWordCategory = effectiveConfig.showWordCategory ?? true;
     const language = effectiveConfig.language ?? LANGUAGES.SPANISH;
-    const wordsData = language === LANGUAGES.ENGLISH ? words : wordsEs;
+    const disabledCategories = effectiveConfig.disabledCategories || [];
+    const wordsData = (language === LANGUAGES.ENGLISH ? words : wordsEs)
+        .filter(category => !disabledCategories.includes(category.id));
     const enableSpecialRoles = effectiveConfig.enableSpecialRoles ?? false;
     const selectedRoles = effectiveConfig.selectedRoles || {
         seraphis: false,
@@ -100,7 +102,7 @@ export default function Room() {
         saveRoomSession(ROUTE_KEY, gameId, {
             players, mode, imposterCount, revealElimination, showImposterCount,
             randomizeImposters, revealImposterStatus, showWordCategory, language,
-            enableSpecialRoles, selectedRoles
+            disabledCategories, enableSpecialRoles, selectedRoles
         }, {
             shuffledPlayers, wordAssignments, currentPlayer, isFlipped, wordFamily,
             gamePhase, voting, eliminatedPlayers, imposterEliminated, mainWord,
@@ -233,6 +235,7 @@ export default function Room() {
                 revealImposterStatus: revealImposterStatus,
                 showWordCategory: showWordCategory,
                 language: language,
+                disabledCategories: disabledCategories,
                 enableSpecialRoles: enableSpecialRoles,
                 enableSeraphis: selectedRoles.seraphis,
                 enableSpectra: selectedRoles.spectra,
