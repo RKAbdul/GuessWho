@@ -2,7 +2,7 @@
 
 A party game for playing in person with one shared phone or tablet. Pass the device around, everyone secretly reads their card, then you talk it out and try to catch the odd one out — or, in one mode, guess who wrote what.
 
-**Live:** https://rkabdul.github.io/GuessWho
+**Live:** hosted on [Vercel](https://vercel.com) — connect this repo in the Vercel dashboard to get a URL (or point a custom domain at it).
 
 > This README doubles as project context for AI-assisted development (Claude, etc.). It describes what's actually implemented today, not just the intended design — sections that are more "idea" than "shipped" are marked as such.
 
@@ -101,10 +101,10 @@ If/when this gets built, the natural next step is turning the two "use"-triggere
 ## Tech stack
 
 - **React 18** + **Vite 6** (`@vitejs/plugin-react`)
-- **React Router v7** (`BrowserRouter`, `basename="/GuessWho"` — required because it's hosted at a GitHub Pages project path, not domain root)
+- **React Router v7** (`BrowserRouter`, served from domain root — no `basename` needed)
 - **Framer Motion** — card flip animations, list-item stagger-in, phase transitions
 - **ESLint 9** (flat config) with `eslint-plugin-react-hooks` / `eslint-plugin-react-refresh`
-- **gh-pages** for deployment — `npm run deploy` builds and pushes `build/` to the `gh-pages` branch
+- **Vercel** for hosting — deploys automatically on push once the repo is connected in the Vercel dashboard; `vercel.json` sets the build output dir (`build/`) and rewrites all paths to `index.html` so client-side routes (`/room`, `/qroom`, `/waroom`) survive a refresh or direct link.
 - No backend, no state persistence beyond React Router's in-memory `location.state` — refreshing mid-game loses progress.
 
 ## Project structure
@@ -124,9 +124,8 @@ src/
     questionsData.jsx       Question pairs for Answer the Question mode
     whoAnsweredData.jsx     Question bank for Who Answered? mode
     rolesData.jsx           Special role definitions
-public/
-  _redirects                GitHub Pages SPA fallback
-build/                       Vite build output (deployed via gh-pages)
+vercel.json                 Vercel build/output config + SPA rewrite rule
+build/                       Vite build output (gitignored — Vercel builds from source)
 ```
 
 ## Getting started
@@ -137,8 +136,9 @@ npm run dev       # local dev server
 npm run build     # production build → build/
 npm run preview   # preview a production build locally
 npm run lint       # eslint
-npm run deploy      # build + publish build/ to gh-pages branch
 ```
+
+Deployment is automatic: push to the connected branch and Vercel builds/deploys from `vercel.json`. No manual deploy step or build artifacts to commit.
 
 ---
 

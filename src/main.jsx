@@ -12,7 +12,7 @@ import { applyTheme, getStoredTheme } from "./utils/theme";
 applyTheme(getStoredTheme());
 
 createRoot(document.getElementById('root')).render(
-    <Router basename='/GuessWho'>
+    <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/room" element={<Room />} />

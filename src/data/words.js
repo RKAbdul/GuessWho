@@ -175,11 +175,7 @@ const words = [
         id: 13,
         family: "Friends",
         words: ["Abdul", "alfred", "yusuf", "suliman", "gabi", "wilson", "Marco"]
-    },
-   {     id: 14,
-        family: "Troll",
-        words: ["No hay nada que ver aqui", "Di lo que quieras", "INVENTATE COSAS", "CUALQUIER COSA VALE", "PON ALGO GRACIOSO" ]
-   } 
+    }
 ];
 
 export default words;
